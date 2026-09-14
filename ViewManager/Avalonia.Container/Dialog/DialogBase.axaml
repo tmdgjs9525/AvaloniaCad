@@ -1,0 +1,27 @@
+<Window
+    Background="Transparent"
+    SizeToContent="WidthAndHeight"
+    Title="DialogBase"
+    TransparencyLevelHint="Transparent"
+    WindowDecorations="None"
+    WindowStartupLocation="CenterScreen"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d"
+    x:Class="Avalonia.Container.DialogBase"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <ContentControl
+            Content="{ReflectionBinding View}"
+            Grid.Row="1"
+            RenderTransformOrigin="1,0"
+            x:Name="dialogContent">
+            <ContentControl.RenderTransform>
+                <ScaleTransform ScaleX="1" ScaleY="1" />
+            </ContentControl.RenderTransform>
+        </ContentControl>
+    </Grid>
+</Window>

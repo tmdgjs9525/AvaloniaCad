@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+	  <LangVersion>latest</LangVersion>
+	  <Nullable>enable</Nullable>
+	  <ImplicitUsings>enable</ImplicitUsings>
+	  <Title>Container.Core</Title>
+	  <Authors>Mario</Authors>
+	  <Company>Real</Company>
+	  <Description>DialogService, NavigationService</Description>
+	  <PackageTags>7.0;8.0;9.0,10.0</PackageTags>
+	  <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	  <Version>1.2.2</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Update="Interfaces\IViewModelBase.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Compile>
+  </ItemGroup>
+
+</Project>
