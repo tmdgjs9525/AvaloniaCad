@@ -3,6 +3,8 @@
   <component name="AvaloniaProject">
     <option name="projectPerEditor">
       <map>
+        <entry key="AvaloniaCad.Editor/Controls/DrawingCanvas.axaml" value="AvaloniaCad/AvaloniaCad.csproj" />
+        <entry key="AvaloniaCad.Editor/Views/EditorView.axaml" value="AvaloniaCad/AvaloniaCad.csproj" />
         <entry key="AvaloniaCad/Views/MainWindow.axaml" value="AvaloniaCad/AvaloniaCad.csproj" />
         <entry key="ViewManager/Avalonia.Container/Dialog/DialogBase.axaml" value="AvaloniaCad/AvaloniaCad.csproj" />
       </map>
