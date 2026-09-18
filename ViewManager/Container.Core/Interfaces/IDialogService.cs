@@ -1,8 +1,8 @@
 using System;
 using System.Threading.Tasks;
-using EyeContainer.Core.Parameter;
+using Container.Core.Parameter;
 
-namespace EyeContainer.Core.Interfaces
+namespace Container.Core.Interfaces
 {
     public interface IDialogService
     {

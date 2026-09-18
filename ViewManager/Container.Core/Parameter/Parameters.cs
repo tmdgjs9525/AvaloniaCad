@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace EyeContainer.Core.Parameter
+namespace Container.Core.Parameter
 {
     public class Parameters : Dictionary<string, object>
     {

@@ -24,7 +24,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\AvaloniaCad.Core\AvaloniaCad.Core.csproj" />
       <ProjectReference Include="..\KoDrawing.Core\KoDrawing.Core.csproj" />
-      <ProjectReference Include="..\ViewManager\Avalonia.Container\Avalonia.Container.csproj" />
     </ItemGroup>
 </Project>

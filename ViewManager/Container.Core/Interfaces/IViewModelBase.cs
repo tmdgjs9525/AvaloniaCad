@@ -1,4 +1,4 @@
-namespace EyeContainer.Core.Interfaces
+namespace Container.Core.Interfaces
 {
     public interface IViewModelBase
     {

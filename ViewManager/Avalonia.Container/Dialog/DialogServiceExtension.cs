@@ -1,5 +1,5 @@
 using Avalonia.Container.Dialog;
-using EyeContainer.Core.Interfaces;
+using Container.Core.Interfaces;
 using Avalonia.Controls;
 using Microsoft.Extensions.DependencyInjection;
 

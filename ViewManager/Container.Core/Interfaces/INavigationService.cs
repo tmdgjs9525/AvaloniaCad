@@ -1,6 +1,6 @@
-using EyeContainer.Core.Parameter;
+using Container.Core.Parameter;
 
-namespace EyeEyeContainer.Core.Interfaces
+namespace EyeContainer.Core.Interfaces
 {
     //히스토리 관리를 위한 레코드
     public record JournalEntry(string ViewName, Parameters? Parameters);

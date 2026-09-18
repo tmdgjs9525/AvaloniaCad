@@ -1,5 +1,5 @@
 using Avalonia.Container.Util;
-using EyeContainer.Core.Interfaces;
+using Container.Core.Interfaces;
 using Avalonia;
 using Avalonia.Animation; // Animation, KeyFrame
 using Avalonia.Controls;

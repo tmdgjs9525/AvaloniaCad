@@ -1,7 +1,7 @@
-using EyeContainer.Core.Interfaces;
-using EyeContainer.Core.Parameter;
+using Container.Core.Interfaces;
+using Container.Core.Parameter;
 
-namespace EyeContainer.Core.Parameter
+namespace Container.Core.Parameter
 {
     public class DialogResult : IDialogResult
     {

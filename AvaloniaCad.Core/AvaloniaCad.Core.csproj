@@ -5,14 +5,14 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
-    
+
     <ItemGroup>
         <PackageReference Include="Avalonia" Version="12.1.2" />
         <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.2" />
     </ItemGroup>
-    
+
     <ItemGroup>
-      <ProjectReference Include="..\AvaloniaCad.Core\AvaloniaCad.Core.csproj" />
+      <ProjectReference Include="..\ViewManager\Avalonia.Container\Avalonia.Container.csproj" />
     </ItemGroup>
     
 </Project>

@@ -1,4 +1,4 @@
-using EyeContainer.Core.Interfaces;
+using Container.Core.Interfaces;
 using Avalonia.Controls;
 
 namespace Avalonia.Container.Navigate

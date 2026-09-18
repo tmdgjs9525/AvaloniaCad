@@ -1,6 +1,6 @@
 using Avalonia.Container.Util;
-using EyeContainer.Core.Interfaces;
-using EyeContainer.Core.Parameter;
+using Container.Core.Interfaces;
+using Container.Core.Parameter;
 using Avalonia.Controls;
 using Avalonia.VisualTree;
 using CommunityToolkit.Mvvm.DependencyInjection;
