@@ -20,5 +20,6 @@ public partial class DrawingCanvas : UserControl
         Viewport.ViewportCenter = new Vector2(
             (float)(e.NewSize.Width / 2),
             (float)(e.NewSize.Height / 2));
+        Console.WriteLine($"{Viewport.ViewportCenter}");
     }
 }
