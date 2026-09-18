@@ -4,6 +4,7 @@
     <option name="projectPerEditor">
       <map>
         <entry key="AvaloniaCad/Views/MainWindow.axaml" value="AvaloniaCad/AvaloniaCad.csproj" />
+        <entry key="ViewManager/Avalonia.Container/Dialog/DialogBase.axaml" value="AvaloniaCad/AvaloniaCad.csproj" />
       </map>
     </option>
   </component>

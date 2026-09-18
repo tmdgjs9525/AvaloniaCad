@@ -22,4 +22,9 @@
         </PackageReference>
         <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2"/>
     </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\KoDrawing.Core\KoDrawing.Core.csproj" />
+      <ProjectReference Include="..\ViewManager\Avalonia.Container\Avalonia.Container.csproj" />
+    </ItemGroup>
 </Project>

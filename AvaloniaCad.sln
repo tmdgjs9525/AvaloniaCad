@@ -14,6 +14,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KoDrawing.Core", "KoDrawing
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KoDrawing.Tests", "KoDrawing.Tests\KoDrawing.Tests.csproj", "{1617D4AB-3A35-4BBD-9C9A-40B4F1980094}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AvaloniaCad.Editor", "AvaloniaCad.Editor\AvaloniaCad.Editor.csproj", "{1DB8C552-9A5D-407B-B96B-CA9BA9D16CDC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,6 +42,10 @@ Global
 		{1617D4AB-3A35-4BBD-9C9A-40B4F1980094}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1617D4AB-3A35-4BBD-9C9A-40B4F1980094}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1617D4AB-3A35-4BBD-9C9A-40B4F1980094}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1DB8C552-9A5D-407B-B96B-CA9BA9D16CDC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DB8C552-9A5D-407B-B96B-CA9BA9D16CDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1DB8C552-9A5D-407B-B96B-CA9BA9D16CDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1DB8C552-9A5D-407B-B96B-CA9BA9D16CDC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{04C99FA7-BCFC-4D78-AD0B-400AD5C3A3D1} = {5604D158-0B9F-4F4D-B6C9-CEB6FA992227}
