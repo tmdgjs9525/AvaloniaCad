@@ -126,6 +126,9 @@ CadEntity (abstract)
  └─ PolylineEntity(Points[], IsClosed)
 ```
 
+현재 `KoDrawing.Core`에서는 도메인 모델을 본격적으로 구현하기 전에 `ViewportTransform`을 먼저 구축한다.
+
+
 ### 설계 원칙
 
 - 엔터티 좌표는 항상 월드 좌표(mm)로 보관한다.
@@ -160,12 +163,41 @@ CadEntity (abstract)
 
 ## 9. 개발 마일스톤
 
+### 현재 진행 상황
+
+```text
+KoDrawing
+├─ KoDrawing.Core        (.NET 10)  ← 생성 완료
+│  └─ ViewportTransform.cs           ← 구현 완료
+│
+└─ KoDrawing.Tests       (.NET 10)  ← 생성 완료
+   └─ ViewportTransformTests.cs      ← 실행 확인 완료
+
+AvaloniaCad
+└─ 별도 솔루션에서 KoDrawing.Core를 사용하는 구조로 진행
+```
+
+현재까지의 핵심 결정:
+
+- `AvaloniaCad`는 실제 Avalonia 애플리케이션으로 유지한다.
+- `KoDrawing`은 별도의 재사용 가능한 Drawing 프로젝트로 유지한다.
+- `KoDrawing.Core`는 `AvaloniaCad`와 분리하고 `net10.0`을 사용한다.
+- `KoDrawing.Tests`는 xUnit v3 기반으로 구성한다.
+- 첫 번째 Core 기능은 월드 좌표와 화면 좌표를 변환하는 `ViewportTransform`으로 시작한다.
+- 다음 작업은 `ViewportTransform`의 테스트를 보강한 뒤 `AvaloniaCad`에서 `KoDrawing.Core`를 참조하고 Canvas/SkiaSharp를 연결하는 것이다.
+
 ### M1. Canvas Foundation
 
-- Avalonia 레이아웃과 도구 선택 UI
-- SkiaSharp 캔버스 연결
-- Pan, Zoom, World/Screen 변환
-- Grid 및 상태 표시줄
+- [ ] Avalonia 레이아웃과 도구 선택 UI
+- [ ] SkiaSharp 캔버스 연결
+- [x] `KoDrawing.Core` 프로젝트 생성
+- [x] `KoDrawing.Core` 대상 프레임워크를 `net10.0`으로 결정
+- [x] `ViewportTransform` 구현
+- [x] `KoDrawing.Tests` 프로젝트 생성
+- [x] xUnit v3 테스트 환경 구성
+- [x] `ViewportTransform` 테스트 실행 확인
+- [ ] Pan, Zoom, World/Screen 변환 완성
+- [ ] Grid 및 상태 표시줄
 
 ### M2. Drawing & Rendering
 
@@ -213,3 +245,20 @@ CadEntity (abstract)
 - 폐곡선 Extrude와 3D 미리보기
 - 플러그인 도구 API 및 사용자 설정 단축키
 
+
+
+## 12. 현재 작업 순서
+
+현재는 M1의 초기 단계다.
+
+1. `ViewportTransform` 좌표 변환 테스트 보강
+2. `AvaloniaCad`에서 `KoDrawing.Core` 참조
+3. Avalonia `CanvasControl` 생성
+4. SkiaSharp 렌더링 연결
+5. World 좌표 기반 Grid 렌더링
+6. 마우스 Screen → World 좌표 표시
+7. Pan 구현
+8. 마우스 위치 기준 Zoom 구현
+9. Fit to Content 구현
+
+이후 M2에서 Entity 모델과 Line/Rectangle/Circle/Polyline을 추가한다.
