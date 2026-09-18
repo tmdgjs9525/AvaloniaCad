@@ -59,6 +59,7 @@ public sealed class SkiaDrawOperation : ICustomDrawOperation
             (float)Bounds.Height,
             paint);
         
+        // 그려지는지 테스트용 코드 (빨간 동그라미)
         using var pointPaint = new SKPaint
         {
             Color = SKColors.Red,
