@@ -36,19 +36,42 @@ public sealed class SkiaDrawOperation : ICustomDrawOperation
 
         canvas.Clear(SKColors.White);
 
+        var center = _viewport.WorldToScreen(Vector2.Zero);
+
         using var paint = new SKPaint
+        {
+            Color = SKColors.Gray,
+            Style = SKPaintStyle.Stroke,
+            StrokeWidth = 1
+        };
+
+        canvas.DrawLine(
+            0,
+            center.Y,
+            (float)Bounds.Width,
+            center.Y,
+            paint);
+
+        canvas.DrawLine(
+            center.X,
+            0,
+            center.X,
+            (float)Bounds.Height,
+            paint);
+        
+        using var pointPaint = new SKPaint
         {
             Color = SKColors.Red,
             Style = SKPaintStyle.Fill
         };
 
-        var screen = _viewport.WorldToScreen(Vector2.Zero);
-
         canvas.DrawCircle(
-            screen.X,
-            screen.Y,
-            5,
-            paint);
+            center.X,
+            center.Y,
+            20,
+            pointPaint);
+        
+        Console.WriteLine(_viewport.WorldToScreen(Vector2.Zero));
     }
 
     public bool HitTest(Point p)
@@ -58,7 +81,7 @@ public sealed class SkiaDrawOperation : ICustomDrawOperation
 
     public bool Equals(ICustomDrawOperation? other)
     {
-        return other is SkiaDrawOperation;
+        return false;
     }
 
     public void Dispose()
