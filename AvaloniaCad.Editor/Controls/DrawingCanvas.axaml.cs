@@ -1,12 +1,14 @@
 ﻿using System.Numerics;
 using Avalonia.Controls;
+using Avalonia.Media;
+using AvaloniaCad.Editor.Rendering;
 using KoDrawing.Core;
 
 namespace AvaloniaCad.Editor.Controls;
 
-public partial class DrawingCanvas : UserControl
+public partial class DrawingCanvas : Control
 {
-    public ViewportTransform Viewport { get; } = new();
+    private ViewportTransform Viewport { get; } = new();
     
     public DrawingCanvas()
     {
@@ -14,7 +16,14 @@ public partial class DrawingCanvas : UserControl
         
         SizeChanged += OnSizeChanged;
     }
-
+    
+    public override void Render(DrawingContext context)
+    {
+        context.Custom(new SkiaDrawOperation(
+            Bounds,
+            Viewport));
+    }
+    
     private void OnSizeChanged(object? sender, SizeChangedEventArgs e)
     {
         Viewport.ViewportCenter = new Vector2(
