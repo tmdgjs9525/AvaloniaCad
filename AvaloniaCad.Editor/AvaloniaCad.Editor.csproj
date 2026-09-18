@@ -13,6 +13,7 @@
     
     <ItemGroup>
       <ProjectReference Include="..\AvaloniaCad.Core\AvaloniaCad.Core.csproj" />
+      <ProjectReference Include="..\KoDrawing.Core\KoDrawing.Core.csproj" />
     </ItemGroup>
     
 </Project>
