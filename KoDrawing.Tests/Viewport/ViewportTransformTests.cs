@@ -6,15 +6,17 @@ namespace KoDrawing.Tests.Viewport;
 
 public class ViewportTransformTests
 {
+    private static ViewportTransform CreateTransform() => new()
+    {
+        CameraPosition = new Vector2(100, 50),
+        Zoom = 2.0f,
+        ViewportCenter = new Vector2(500, 300)
+    };
+
     [Fact]
     public void WorldToScreen_And_ScreenToWorld_ReturnsOriginalPoint()
     {
-        var transform = new ViewportTransform
-        {
-            CameraPosition = new Vector2(100, 50),
-            Zoom = 2.0f,
-            ViewportCenter = new Vector2(500, 300)
-        };
+        var transform = CreateTransform();
 
         var world = new Vector2(150, 100);
 
@@ -23,35 +25,66 @@ public class ViewportTransformTests
 
         Assert.Equal(world, result);
     }
-    
+
     [Fact]
     public void WorldToScreen_Should_ConvertCorrectly()
     {
-        var transform = new ViewportTransform
-        {
-            CameraPosition = new Vector2(100, 50),
-            Zoom = 2.0f,
-            ViewportCenter = new Vector2(500, 300)
-        };
+        var transform = CreateTransform();
 
         var result = transform.WorldToScreen(new Vector2(150, 100));
 
-        Assert.Equal(new Vector2(600, 400), result);
+        // X: (150-100)*2 + 500 = 600
+        // Y: -(100-50)*2 + 300 = 200  (Y축 뒤집힘)
+        Assert.Equal(new Vector2(600, 200), result);
     }
-    
+
     [Fact]
     public void ScreenToWorld_Should_ConvertCorrectly()
     {
-        var transform = new ViewportTransform
-        {
-            CameraPosition = new Vector2(100, 50),
-            Zoom = 2.0f,
-            ViewportCenter = new Vector2(500, 300)
-        };
+        var transform = CreateTransform();
 
-        var result = transform.ScreenToWorld(new Vector2(600, 400));
+        var result = transform.ScreenToWorld(new Vector2(600, 200));
 
         Assert.Equal(new Vector2(150, 100), result);
+    }
+
+    [Fact]
+    public void WorldPoint_AtCameraPosition_IsAtViewportCenter()
+    {
+        var transform = CreateTransform();
+
+        var result = transform.WorldToScreen(transform.CameraPosition);
+
+        Assert.Equal(transform.ViewportCenter, result);
+    }
+
+    [Fact]
+    public void PositiveWorldY_GoesUpOnScreen()
+    {
+        var transform = new ViewportTransform
+        {
+            Zoom = 2.0f,
+            ViewportCenter = new Vector2(400, 225)
+        };
+
+        var result = transform.WorldToScreen(new Vector2(10, 10));
+
+        Assert.Equal(420f, result.X);   // 오른쪽으로 이동
+        Assert.Equal(205f, result.Y);   // 위쪽으로 이동 (스크린 Y 감소)
+    }
+
+    [Fact]
+    public void Clone_CopiesValues_AndIsIndependent()
+    {
+        var original = CreateTransform();
+
+        var clone = original.Clone();
+        original.CameraPosition = new Vector2(999, 999);
+        original.Zoom = 10f;
+
+        Assert.Equal(new Vector2(100, 50), clone.CameraPosition);
+        Assert.Equal(2.0f, clone.Zoom);
+        Assert.Equal(new Vector2(500, 300), clone.ViewportCenter);
     }
 
     [Fact]
