@@ -24,55 +24,47 @@ public sealed class SkiaDrawOperation : ICustomDrawOperation
 
     public void Render(ImmediateDrawingContext context)
     {
-        var leaseFeature =
-            context.TryGetFeature<ISkiaSharpApiLeaseFeature>();
-
+        var leaseFeature = context.TryGetFeature<ISkiaSharpApiLeaseFeature>();
         if (leaseFeature is null)
             return;
 
         using var lease = leaseFeature.Lease();
-
         var canvas = lease.SkCanvas;
 
-        canvas.Clear(SKColors.White);
-
-        var center = _viewport.WorldToScreen(Vector2.Zero);
-
-        using var paint = new SKPaint
+        canvas.Save();
+        try
         {
-            Color = SKColors.Gray,
-            Style = SKPaintStyle.Stroke,
-            StrokeWidth = 1
-        };
+            // 컨트롤 영역으로 클립 (Clear가 이 영역 안에서만 동작)
+            canvas.ClipRect(new SKRect(
+                0, 0,
+                (float)Bounds.Width,
+                (float)Bounds.Height));
 
-        canvas.DrawLine(
-            0,
-            center.Y,
-            (float)Bounds.Width,
-            center.Y,
-            paint);
+            canvas.Clear(SKColors.White);
 
-        canvas.DrawLine(
-            center.X,
-            0,
-            center.X,
-            (float)Bounds.Height,
-            paint);
-        
-        // 그려지는지 테스트용 코드 (빨간 동그라미)
-        using var pointPaint = new SKPaint
+            var center = _viewport.WorldToScreen(Vector2.Zero);
+
+            using var paint = new SKPaint
+            {
+                Color = SKColors.Gray,
+                Style = SKPaintStyle.Stroke,
+                StrokeWidth = 1
+            };
+
+            canvas.DrawLine(0, center.Y, (float)Bounds.Width, center.Y, paint);
+            canvas.DrawLine(center.X, 0, center.X, (float)Bounds.Height, paint);
+
+            using var pointPaint = new SKPaint
+            {
+                Color = SKColors.Red,
+                Style = SKPaintStyle.Fill
+            };
+            canvas.DrawCircle(center.X, center.Y, 20, pointPaint);
+        }
+        finally
         {
-            Color = SKColors.Red,
-            Style = SKPaintStyle.Fill
-        };
-
-        canvas.DrawCircle(
-            center.X,
-            center.Y,
-            20,
-            pointPaint);
-        
-        Console.WriteLine(_viewport.WorldToScreen(Vector2.Zero));
+            canvas.Restore();
+        }
     }
 
     public bool HitTest(Point p)
