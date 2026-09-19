@@ -53,4 +53,51 @@ public class ViewportTransformTests
 
         Assert.Equal(new Vector2(150, 100), result);
     }
+
+    [Fact]
+    public void Zoom_Zero_Throws()
+    {
+        var transform = new ViewportTransform();
+
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+            transform.Zoom = 0);
+    }
+
+    [Fact]
+    public void Zoom_Negative_Throws()
+    {
+        var transform = new ViewportTransform();
+
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+            transform.Zoom = -1);
+    }
+
+    [Fact]
+    public void Zoom_NaN_Throws()
+    {
+        var transform = new ViewportTransform();
+
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+            transform.Zoom = float.NaN);
+    }
+
+    [Fact]
+    public void Zoom_Infinity_Throws()
+    {
+        var transform = new ViewportTransform();
+
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+            transform.Zoom = float.PositiveInfinity);
+    }
+
+    [Fact]
+    public void Zoom_ValidValue_IsAccepted()
+    {
+        var transform = new ViewportTransform
+        {
+            Zoom = 0.5f
+        };
+
+        Assert.Equal(0.5f, transform.Zoom);
+    }
 }

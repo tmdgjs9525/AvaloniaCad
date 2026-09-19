@@ -6,7 +6,19 @@ public sealed class ViewportTransform
 {
     public Vector2 CameraPosition { get; set; }
 
-    public float Zoom { get; set; } = 1.0f;
+    private float _zoom = 1.0f;
+
+    public float Zoom
+    {
+        get => _zoom;
+        set
+        {
+            if (!float.IsFinite(value) || value <= 0)
+                throw new ArgumentOutOfRangeException(nameof(value));
+
+            _zoom = value;
+        }
+    }
 
     public Vector2 ViewportCenter { get; set; }
 
