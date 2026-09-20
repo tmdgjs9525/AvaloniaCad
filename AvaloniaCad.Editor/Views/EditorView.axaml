@@ -9,17 +9,33 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <Grid RowDefinitions="Auto,*"
+    <Grid RowDefinitions="Auto,*,Auto"
           ColumnDefinitions="220,*,280">
 
         <controls:EditorToolbar Grid.Row="0"
                 Grid.Column="0"
                 Grid.ColumnSpan="3"/>
 
-        <controls:DrawingCanvas
+        <controls:DrawingCanvas 
+            x:Name="DrawingArea"
             Grid.Row="1"
             Grid.Column="1"/>
         
+        <!-- 상태 표시줄 -->
+        <Border Grid.Row="2"
+                Grid.Column="0"
+                Grid.ColumnSpan="3"
+                Background="#007ACC"
+                Padding="10,3">
+            <StackPanel Orientation="Horizontal" Spacing="20">
+                <TextBlock MinWidth="110" Foreground="White"
+                           Text="{Binding #DrawingArea.CursorWorld.X, StringFormat='X: {0:F2} mm'}"/>
+                <TextBlock MinWidth="110" Foreground="White"
+                           Text="{Binding #DrawingArea.CursorWorld.Y, StringFormat='Y: {0:F2} mm'}"/>
+                <TextBlock MinWidth="90" Foreground="White"
+                           Text="{Binding #DrawingArea.ZoomFactor, StringFormat='Zoom: {0:P0}'}"/>
+            </StackPanel>
+        </Border>
     </Grid>
 
 </UserControl>

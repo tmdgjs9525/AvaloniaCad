@@ -133,4 +133,75 @@ public class ViewportTransformTests
 
         Assert.Equal(0.5f, transform.Zoom);
     }
+    
+    [Fact]
+    public void PanByScreenDelta_MovesContentWithPointer()
+    {
+        var transform = CreateTransform();
+        var world = new Vector2(150, 100);   // 현재 스크린 (600, 200)
+
+        transform.PanByScreenDelta(new Vector2(30, -20));
+
+        // 포인터가 (+30, -20) 움직였으니 도면 점도 같은 만큼 움직여야 한다
+        Assert.Equal(new Vector2(630, 180), transform.WorldToScreen(world));
+    }
+
+    [Fact]
+    public void ZoomAt_KeepsWorldPointUnderCursor()
+    {
+        var transform = CreateTransform();
+        var anchor = new Vector2(620, 180);
+        var before = transform.ScreenToWorld(anchor);
+
+        transform.ZoomAt(anchor, 1.5f);
+
+        Assert.Equal(3.0f, transform.Zoom);
+        AssertNear(before, transform.ScreenToWorld(anchor));
+    }
+
+    [Fact]
+    public void ZoomAt_ClampsToMaxZoom_AndKeepsAnchor()
+    {
+        var transform = CreateTransform();
+        var anchor = new Vector2(620, 180);
+        var before = transform.ScreenToWorld(anchor);
+
+        transform.ZoomAt(anchor, 1_000_000f);
+
+        Assert.Equal(ViewportTransform.MaxZoom, transform.Zoom);
+        AssertNear(before, transform.ScreenToWorld(anchor));
+    }
+
+    [Fact]
+    public void ZoomAt_ClampsToMinZoom_AndKeepsAnchor()
+    {
+        var transform = CreateTransform();
+        var anchor = new Vector2(620, 180);
+        var before = transform.ScreenToWorld(anchor);
+
+        transform.ZoomAt(anchor, 0.000001f);
+
+        Assert.Equal(ViewportTransform.MinZoom, transform.Zoom);
+        AssertNear(before, transform.ScreenToWorld(anchor));
+    }
+
+    [Theory]
+    [InlineData(0f)]
+    [InlineData(-1f)]
+    [InlineData(float.NaN)]
+    [InlineData(float.PositiveInfinity)]
+    public void ZoomAt_InvalidFactor_Throws(float factor)
+    {
+        var transform = CreateTransform();
+
+        Assert.Throws<ArgumentOutOfRangeException>(() =>
+            transform.ZoomAt(Vector2.Zero, factor));
+    }
+    
+    private static void AssertNear(Vector2 expected, Vector2 actual, float tolerance = 1e-3f)
+    {
+        Assert.True(
+            Vector2.Distance(expected, actual) < tolerance,
+            $"Expected {expected}, actual {actual}");
+    }
 }

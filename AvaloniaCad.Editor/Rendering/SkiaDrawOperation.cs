@@ -31,35 +31,32 @@ public sealed class SkiaDrawOperation : ICustomDrawOperation
         using var lease = leaseFeature.Lease();
         var canvas = lease.SkCanvas;
 
+        var w = (float)Bounds.Width;
+        var h = (float)Bounds.Height;
+
         canvas.Save();
         try
         {
-            // 컨트롤 영역으로 클립 (Clear가 이 영역 안에서만 동작)
-            canvas.ClipRect(new SKRect(
-                0, 0,
-                (float)Bounds.Width,
-                (float)Bounds.Height));
-
+            canvas.ClipRect(new SKRect(0, 0, w, h));
             canvas.Clear(SKColors.White);
 
-            var center = _viewport.WorldToScreen(Vector2.Zero);
+            GridRenderer.Draw(canvas, _viewport, w, h);
 
-            using var paint = new SKPaint
+            // 월드 원점 축 (X: 빨강, Y: 초록)
+            var origin = _viewport.WorldToScreen(Vector2.Zero);
+
+            using var axisPaint = new SKPaint
             {
-                Color = SKColors.Gray,
                 Style = SKPaintStyle.Stroke,
-                StrokeWidth = 1
+                StrokeWidth = 1,
+                IsAntialias = true
             };
 
-            canvas.DrawLine(0, center.Y, (float)Bounds.Width, center.Y, paint);
-            canvas.DrawLine(center.X, 0, center.X, (float)Bounds.Height, paint);
+            axisPaint.Color = SKColors.IndianRed;
+            canvas.DrawLine(0, origin.Y, w, origin.Y, axisPaint);
 
-            using var pointPaint = new SKPaint
-            {
-                Color = SKColors.Red,
-                Style = SKPaintStyle.Fill
-            };
-            canvas.DrawCircle(center.X, center.Y, 20, pointPaint);
+            axisPaint.Color = SKColors.SeaGreen;
+            canvas.DrawLine(origin.X, 0, origin.X, h, axisPaint);
         }
         finally
         {
