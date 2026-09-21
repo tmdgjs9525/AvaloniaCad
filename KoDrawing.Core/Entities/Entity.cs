@@ -1,4 +1,4 @@
-﻿namespace KoDrawing.Core.Entity;
+﻿namespace KoDrawing.Core.Entities;
 
 public abstract class Entity
 {

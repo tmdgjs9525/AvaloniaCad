@@ -1,6 +1,6 @@
 ﻿using System.Numerics;
 
-namespace KoDrawing.Core.Entity;
+namespace KoDrawing.Core.Entities;
 
 public sealed class CircleEntity : Entity
 {

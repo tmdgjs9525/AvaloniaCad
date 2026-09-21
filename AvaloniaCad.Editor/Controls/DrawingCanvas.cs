@@ -5,6 +5,7 @@ using Avalonia.Input;
 using Avalonia.Media;
 using AvaloniaCad.Editor.Rendering;
 using KoDrawing.Core;
+using KoDrawing.Core.Entities;
 
 namespace AvaloniaCad.Editor.Controls;
 
@@ -36,6 +37,14 @@ public class DrawingCanvas : Control
 
     private ViewportTransform Viewport { get; } = new();
 
+    private CadDocument _document = new();
+
+    public CadDocument Document
+    {
+        get => _document;
+        set { _document = value; InvalidateVisual(); }
+    }
+    
     private bool _isPanning;
     private Point _lastPointer;
 
@@ -43,13 +52,18 @@ public class DrawingCanvas : Control
     {
         ClipToBounds = true;
         SizeChanged += OnSizeChanged;
+        
+        //테스트용 코드
+        Document.Add(new LineEntity   { Start = new(10, 0),    End = new(100, 0) });
+        Document.Add(new LineEntity   { Start = new(10, 0),    End = new(0, 100) });
+        Document.Add(new CircleEntity { Center = new(50, 50), Radius = 30 });
     }
 
     public override void Render(DrawingContext context)
     {
         var localBounds = new Rect(Bounds.Size);
 
-        context.Custom(new SkiaDrawOperation(localBounds, Viewport.Clone()));
+        context.Custom(new SkiaDrawOperation(localBounds, Viewport.Clone(), Document.Entities.ToArray()));
     }
 
     // ───────── 입력 ─────────

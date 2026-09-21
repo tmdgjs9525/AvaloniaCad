@@ -4,6 +4,7 @@ using Avalonia.Media;
 using Avalonia.Rendering.SceneGraph;
 using Avalonia.Skia;
 using KoDrawing.Core;
+using KoDrawing.Core.Entities;
 using SkiaSharp;
 
 namespace AvaloniaCad.Editor.Rendering;
@@ -13,15 +14,15 @@ public sealed class SkiaDrawOperation : ICustomDrawOperation
     private readonly ViewportTransform _viewport;
 
     public Rect Bounds { get; }
+    private readonly IReadOnlyList<Entity> _entities;      // 필드 추가
 
-    public SkiaDrawOperation(
-        Rect bounds,
-        ViewportTransform viewport)
+    public SkiaDrawOperation(Rect bounds, ViewportTransform viewport, IReadOnlyList<Entity> entities)
     {
         Bounds = bounds;
         _viewport = viewport;
+        _entities = entities;
     }
-
+    
     public void Render(ImmediateDrawingContext context)
     {
         var leaseFeature = context.TryGetFeature<ISkiaSharpApiLeaseFeature>();
@@ -41,7 +42,7 @@ public sealed class SkiaDrawOperation : ICustomDrawOperation
             canvas.Clear(SKColors.White);
 
             GridRenderer.Draw(canvas, _viewport, w, h);
-
+            EntityRenderer.Draw(canvas, _viewport, _entities);
             // 월드 원점 축 (X: 빨강, Y: 초록)
             var origin = _viewport.WorldToScreen(Vector2.Zero);
 
