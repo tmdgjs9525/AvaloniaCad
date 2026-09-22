@@ -1,8 +1,17 @@
+using AvaloniaCad.Core;
+using AvaloniaCad.Editor.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Container.Core.Interfaces;
 
 namespace AvaloniaCad.ViewModels;
 
 public partial class MainViewModel : ViewModelBase
 {
-    [ObservableProperty] public partial string Greeting { get; set; } = "Welcome to Avalonia!";
+    private readonly INavigationService _navigationService;
+    public MainViewModel(INavigationService navigationService)
+    {
+        _navigationService = navigationService;
+        
+        _navigationService.NavigateTo(RegionNames.MainRegion, nameof(EditorView));
+    }
 }

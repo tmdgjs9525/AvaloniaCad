@@ -7,8 +7,10 @@
     x:Class="AvaloniaCad.Views.MainWindow"
     x:DataType="vm:MainViewModel"
     xmlns="https://github.com/avaloniaui"
+    xmlns:RegionNames="clr-namespace:AvaloniaCad.Core;assembly=AvaloniaCad.Core"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:region="using:Avalonia.Container.Region"
     xmlns:views="clr-namespace:AvaloniaCad.Editor.Views;assembly=AvaloniaCad.Editor"
     xmlns:vm="using:AvaloniaCad.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
@@ -21,6 +23,6 @@
         <vm:MainViewModel />
     </Design.DataContext>
 
-    <views:EditorView />
+    <ContentControl region:RegionManager.RegionName="{x:Static RegionNames:RegionNames.MainRegion}" />
 
 </Window>

@@ -1,7 +1,7 @@
 using Avalonia.Container.Region;
 using Container.Core.Interfaces;
 using Container.Core.Parameter;
-using EyeContainer.Core.Interfaces;
+using Container.Core.Interfaces;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.DependencyInjection;
 
