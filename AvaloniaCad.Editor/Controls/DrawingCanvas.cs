@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Media;
 using AvaloniaCad.Editor.Rendering;
+using AvaloniaCad.Editor.Tools;
 using KoDrawing.Core;
 using KoDrawing.Core.Entities;
 
@@ -45,25 +46,32 @@ public class DrawingCanvas : Control
         set { _document = value; InvalidateVisual(); }
     }
     
+    private readonly ITool _tool;
     private bool _isPanning;
     private Point _lastPointer;
 
     public DrawingCanvas()
     {
         ClipToBounds = true;
+        Focusable = true;          // Esc 키를 받으려면 필요
         SizeChanged += OnSizeChanged;
-        
-        //테스트용 코드
-        Document.Add(new LineEntity   { Start = new(10, 0),    End = new(100, 0) });
-        Document.Add(new LineEntity   { Start = new(10, 0),    End = new(0, 100) });
-        Document.Add(new CircleEntity { Center = new(50, 50), Radius = 30 });
+
+        _tool = new LineTool(entity =>
+        {
+            Document.Add(entity);
+            InvalidateVisual();
+        });
     }
 
     public override void Render(DrawingContext context)
     {
         var localBounds = new Rect(Bounds.Size);
 
-        context.Custom(new SkiaDrawOperation(localBounds, Viewport.Clone(), Document.Entities.ToArray()));
+        context.Custom(new SkiaDrawOperation(
+            localBounds,
+            Viewport.Clone(),
+            Document.Entities.ToArray(),
+            _tool.Preview));
     }
 
     // ───────── 입력 ─────────
@@ -74,13 +82,26 @@ public class DrawingCanvas : Control
 
         var point = e.GetCurrentPoint(this);
 
-        // 휠 클릭 드래그 = Pan (WPF의 CaptureMouse에 해당하는 Capture 사용)
+        // 휠 클릭 드래그 = Pan 
         if (point.Properties.IsMiddleButtonPressed)
         {
             _isPanning = true;
             _lastPointer = point.Position;
             e.Pointer.Capture(this);
             Cursor = new Cursor(StandardCursorType.SizeAll);
+            e.Handled = true;
+        }
+        else if (point.Properties.IsLeftButtonPressed)
+        {
+            Focus();
+            _tool.OnPointerPressed(Viewport.ScreenToWorld(ToVector2(point.Position)));
+            InvalidateVisual();
+            e.Handled = true;
+        }
+        else if (point.Properties.IsRightButtonPressed)
+        {
+            _tool.Cancel();
+            InvalidateVisual();
             e.Handled = true;
         }
     }
@@ -96,10 +117,24 @@ public class DrawingCanvas : Control
             var delta = pos - _lastPointer;
             Viewport.PanByScreenDelta(new Vector2((float)delta.X, (float)delta.Y));
             _lastPointer = pos;
-            InvalidateVisual();
         }
 
+        _tool.OnPointerMoved(Viewport.ScreenToWorld(ToVector2(pos)));
+
         UpdateCursorWorld(pos);
+        InvalidateVisual();
+    }
+    
+    protected override void OnKeyDown(KeyEventArgs e)
+    {
+        base.OnKeyDown(e);
+
+        if (e.Key == Key.Escape)
+        {
+            _tool.Cancel();
+            InvalidateVisual();
+            e.Handled = true;
+        }
     }
 
     protected override void OnPointerReleased(PointerReleasedEventArgs e)

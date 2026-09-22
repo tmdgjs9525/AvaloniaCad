@@ -15,8 +15,32 @@ internal static class EntityRenderer
             StrokeWidth = 1.5f,
             IsAntialias = true
         };
-        
-        foreach (var entity in entities)   // document.Entities → entities
+
+        DrawAll(canvas, viewport, entities, paint);
+    }
+
+    // 그리는 중인 도형: 파란 점선
+    public static void DrawPreview(SKCanvas canvas, ViewportTransform viewport, IReadOnlyList<Entity> entities)
+    {
+        if (entities.Count == 0)
+            return;
+
+        using var dash = SKPathEffect.CreateDash(new[] { 6f, 4f }, 0f);
+        using var paint = new SKPaint
+        {
+            Color = SKColors.DodgerBlue,
+            Style = SKPaintStyle.Stroke,
+            StrokeWidth = 1.5f,
+            IsAntialias = true,
+            PathEffect = dash
+        };
+
+        DrawAll(canvas, viewport, entities, paint);
+    }
+
+    private static void DrawAll(SKCanvas canvas, ViewportTransform viewport, IReadOnlyList<Entity> entities, SKPaint paint)
+    {
+        foreach (var entity in entities)
         {
             switch (entity)
             {
@@ -40,7 +64,7 @@ internal static class EntityRenderer
     private static void DrawCircle(SKCanvas canvas, ViewportTransform viewport, CircleEntity circle, SKPaint paint)
     {
         var c = viewport.WorldToScreen(circle.Center);
-        var r = circle.Radius * viewport.Zoom;   // mm → 픽셀
+        var r = circle.Radius * viewport.Zoom;
         canvas.DrawCircle(c.X, c.Y, r, paint);
     }
 }

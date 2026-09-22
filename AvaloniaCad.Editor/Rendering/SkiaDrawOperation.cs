@@ -12,15 +12,21 @@ namespace AvaloniaCad.Editor.Rendering;
 public sealed class SkiaDrawOperation : ICustomDrawOperation
 {
     private readonly ViewportTransform _viewport;
+    private readonly IReadOnlyList<Entity> _entities;
+    private readonly IReadOnlyList<Entity> _preview;
 
     public Rect Bounds { get; }
-    private readonly IReadOnlyList<Entity> _entities;      // 필드 추가
 
-    public SkiaDrawOperation(Rect bounds, ViewportTransform viewport, IReadOnlyList<Entity> entities)
+    public SkiaDrawOperation(
+        Rect bounds,
+        ViewportTransform viewport,
+        IReadOnlyList<Entity> entities,
+        IReadOnlyList<Entity> preview)
     {
         Bounds = bounds;
         _viewport = viewport;
         _entities = entities;
+        _preview = preview;
     }
     
     public void Render(ImmediateDrawingContext context)
@@ -43,6 +49,7 @@ public sealed class SkiaDrawOperation : ICustomDrawOperation
 
             GridRenderer.Draw(canvas, _viewport, w, h);
             EntityRenderer.Draw(canvas, _viewport, _entities);
+            EntityRenderer.DrawPreview(canvas, _viewport, _preview);
             // 월드 원점 축 (X: 빨강, Y: 초록)
             var origin = _viewport.WorldToScreen(Vector2.Zero);
 
