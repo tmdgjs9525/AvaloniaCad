@@ -50,6 +50,9 @@ internal static class EntityRenderer
                 case CircleEntity circle:
                     DrawCircle(canvas, viewport, circle, paint);
                     break;
+                case RectangleEntity rect:
+                    DrawRectangle(canvas, viewport, rect, paint);
+                    break;
             }
         }
     }
@@ -66,5 +69,20 @@ internal static class EntityRenderer
         var c = viewport.WorldToScreen(circle.Center);
         var r = circle.Radius * viewport.Zoom;
         canvas.DrawCircle(c.X, c.Y, r, paint);
+    }
+    
+    private static void DrawRectangle(SKCanvas canvas, ViewportTransform viewport, RectangleEntity rect, SKPaint paint)
+    {
+        var a = viewport.WorldToScreen(rect.Corner1);
+        var b = viewport.WorldToScreen(rect.Corner2);
+
+        // 화면 좌표는 Y가 뒤집혀 있을 수 있으므로, 어느 점이 위/아래인지 따지지 않고
+        // Min/Max로 항상 올바른 사각형을 만든다.
+        var left = MathF.Min(a.X, b.X);
+        var right = MathF.Max(a.X, b.X);
+        var top = MathF.Min(a.Y, b.Y);
+        var bottom = MathF.Max(a.Y, b.Y);
+
+        canvas.DrawRect(new SKRect(left, top, right, bottom), paint);
     }
 }
