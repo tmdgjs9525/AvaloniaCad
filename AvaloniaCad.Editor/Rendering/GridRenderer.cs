@@ -44,7 +44,7 @@ internal static class GridRenderer
     }
 
     // 화면상 간격이 MinPixelSpacing 이상이 되는 가장 작은 10의 거듭제곱(mm)
-    private static float ChooseSpacing(float zoom)
+    public  static float ChooseSpacing(float zoom)
     {
         var targetMm = MinPixelSpacing / zoom;
         return MathF.Pow(10f, MathF.Ceiling(MathF.Log10(targetMm)));

@@ -33,6 +33,14 @@ public class DrawingCanvas : Control
     public static readonly StyledProperty<ITool?> ToolProperty =
         AvaloniaProperty.Register<DrawingCanvas, ITool?>(nameof(Tool));
 
+    public static readonly StyledProperty<bool> SnapEnabledProperty = AvaloniaProperty.Register<DrawingCanvas, bool>(
+        nameof(SnapEnabled));
+
+    public bool SnapEnabled
+    {
+        get => GetValue(SnapEnabledProperty);
+        set => SetValue(SnapEnabledProperty, value);
+    }
     /// <summary>마우스 커서 아래의 월드 좌표 (mm)</summary>
     public Point CursorWorld
     {
@@ -107,7 +115,7 @@ public class DrawingCanvas : Control
         else if (point.Properties.IsLeftButtonPressed)
         {
             Focus();
-            Tool?.OnPointerPressed(Viewport.ScreenToWorld(ToVector2(point.Position)));
+            Tool?.OnPointerPressed(ScreenToSnappedWorld(point.Position)); 
             InvalidateVisual();
             e.Handled = true;
         }
@@ -136,7 +144,7 @@ public class DrawingCanvas : Control
             _lastPointer = pos;
         }
 
-        Tool?.OnPointerMoved(Viewport.ScreenToWorld(ToVector2(pos)));
+        Tool?.OnPointerMoved(ScreenToSnappedWorld(pos));  
 
         UpdateCursorWorld(pos);
         InvalidateVisual();
@@ -223,5 +231,18 @@ public class DrawingCanvas : Control
             (float)(e.NewSize.Height / 2));
 
         InvalidateVisual();
+    }
+    
+    private Vector2 ScreenToSnappedWorld(Point screenPos)
+    {
+        var world = Viewport.ScreenToWorld(ToVector2(screenPos));
+
+        if (!SnapEnabled)
+            return world;
+
+        var spacing = GridRenderer.ChooseSpacing(Viewport.Zoom);
+        return new Vector2(
+            MathF.Round(world.X / spacing) * spacing,
+            MathF.Round(world.Y / spacing) * spacing);
     }
 }

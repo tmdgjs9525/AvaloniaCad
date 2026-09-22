@@ -8,6 +8,7 @@ namespace AvaloniaCad.Editor.ViewModels;
 
 public partial class EditorViewModel : ViewModelBase
 {
+    [ObservableProperty] private bool _snapEnabled = true;
     [ObservableProperty] private ITool _currentTool;
     [ObservableProperty] private CadDocument _cadDocument = new();
 

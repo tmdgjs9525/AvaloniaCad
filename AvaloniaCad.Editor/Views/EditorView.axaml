@@ -21,6 +21,7 @@
         <controls:DrawingCanvas
             Document="{Binding CadDocument}"
             Grid.Column="1"
+            SnapEnabled="{Binding SnapEnabled}"
             Grid.Row="1"
             Tool="{Binding CurrentTool}"
             x:Name="DrawingArea" />

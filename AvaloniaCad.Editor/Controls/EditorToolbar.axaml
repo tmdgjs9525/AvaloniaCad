@@ -110,11 +110,10 @@
                     Margin="6,4"
                     Width="1" />
 
-                <ToggleButton
-                    Classes="option"
-                    Content="Snap"
-                    IsChecked="True"
-                    ToolTip.Tip="스냅 켜기/끄기 (F3)" />
+                <ToggleButton Classes="option" 
+                              Content="Snap" 
+                              IsChecked="{Binding SnapEnabled}"
+                              ToolTip.Tip="스냅 켜기/끄기 (F3)"/>
 
             </StackPanel>
         </Border>
