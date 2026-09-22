@@ -1,93 +1,138 @@
-﻿<UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="AvaloniaCad.Editor.Controls.EditorToolbar">
+﻿<UserControl
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d"
+    x:Class="AvaloniaCad.Editor.Controls.EditorToolbar"
+    x:DataType="vm:EditorViewModel"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:AvaloniaCad.Editor.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <UserControl.Styles>
-        <!-- RadioButton을 토글 버튼 모양으로 표시 (같은 GroupName 안에서 하나만 선택됨) -->
+        <!--  RadioButton을 토글 버튼 모양으로 표시 (같은 GroupName 안에서 하나만 선택됨)  -->
         <Style Selector="RadioButton.tool">
-            <Setter Property="Theme" Value="{StaticResource {x:Type ToggleButton}}"/>
-            <Setter Property="MinWidth" Value="64"/>
-            <Setter Property="Height" Value="32"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Theme" Value="{StaticResource {x:Type ToggleButton}}" />
+            <Setter Property="MinWidth" Value="64" />
+            <Setter Property="Height" Value="32" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
         </Style>
 
         <Style Selector="ToggleButton.option">
-            <Setter Property="MinWidth" Value="64"/>
-            <Setter Property="Height" Value="32"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="MinWidth" Value="64" />
+            <Setter Property="Height" Value="32" />
+            <Setter Property="HorizontalContentAlignment" Value="Center" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
         </Style>
     </UserControl.Styles>
 
     <StackPanel>
 
-        <!-- 메뉴 -->
+        <!--  메뉴  -->
         <Menu>
             <MenuItem Header="_File">
-                <MenuItem Header="_New" InputGesture="Ctrl+N"/>
-                <MenuItem Header="_Open..." InputGesture="Ctrl+O"/>
-                <Separator/>
-                <MenuItem Header="_Save" InputGesture="Ctrl+S"/>
-                <MenuItem Header="Save _As..." InputGesture="Ctrl+Shift+S"/>
-                <Separator/>
-                <MenuItem Header="_Export PNG..."/>
-                <Separator/>
-                <MenuItem Header="E_xit" InputGesture="Alt+F4"/>
+                <MenuItem Header="_New" InputGesture="Ctrl+N" />
+                <MenuItem Header="_Open..." InputGesture="Ctrl+O" />
+                <Separator />
+                <MenuItem Header="_Save" InputGesture="Ctrl+S" />
+                <MenuItem Header="Save _As..." InputGesture="Ctrl+Shift+S" />
+                <Separator />
+                <MenuItem Header="_Export PNG..." />
+                <Separator />
+                <MenuItem Header="E_xit" InputGesture="Alt+F4" />
             </MenuItem>
 
             <MenuItem Header="_Edit">
-                <MenuItem Header="_Undo" InputGesture="Ctrl+Z"/>
-                <MenuItem Header="_Redo" InputGesture="Ctrl+Y"/>
-                <Separator/>
-                <MenuItem Header="_Copy" InputGesture="Ctrl+C"/>
-                <MenuItem Header="_Delete" InputGesture="Delete"/>
+                <MenuItem Header="_Undo" InputGesture="Ctrl+Z" />
+                <MenuItem Header="_Redo" InputGesture="Ctrl+Y" />
+                <Separator />
+                <MenuItem Header="_Copy" InputGesture="Ctrl+C" />
+                <MenuItem Header="_Delete" InputGesture="Delete" />
             </MenuItem>
 
             <MenuItem Header="_View">
-                <MenuItem Header="_Fit to Content" InputGesture="Ctrl+0"/>
-                <MenuItem Header="Show _Grid" ToggleType="CheckBox" IsChecked="True"/>
+                <MenuItem Header="_Fit to Content" InputGesture="Ctrl+0" />
+                <MenuItem
+                    Header="Show _Grid"
+                    IsChecked="True"
+                    ToggleType="CheckBox" />
             </MenuItem>
 
             <MenuItem Header="_Help">
-                <MenuItem Header="_About"/>
+                <MenuItem Header="_About" />
             </MenuItem>
         </Menu>
 
-        <!-- 도구 모음 -->
-        <Border Padding="6,4"
-                BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
-                BorderThickness="0,1,0,1">
+        <!--  도구 모음  -->
+        <Border
+            BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+            BorderThickness="0,1,0,1"
+            Padding="6,4">
 
             <StackPanel Orientation="Horizontal" Spacing="4">
 
-                <RadioButton Classes="tool" GroupName="DrawingTool"
-                             Content="Select" IsChecked="True" Tag="Select"
-                             ToolTip.Tip="선택 (V)"/>
-                <RadioButton Classes="tool" GroupName="DrawingTool"
-                             Content="Line" Tag="Line"
-                             ToolTip.Tip="선 (L)"/>
-                <RadioButton Classes="tool" GroupName="DrawingTool"
-                             Content="Rect" Tag="Rectangle"
-                             ToolTip.Tip="사각형 (R)"/>
-                <RadioButton Classes="tool" GroupName="DrawingTool"
-                             Content="Circle" Tag="Circle"
-                             ToolTip.Tip="원 (C)"/>
-                <RadioButton Classes="tool" GroupName="DrawingTool"
-                             Content="Polyline" Tag="Polyline"
-                             ToolTip.Tip="폴리라인 (P)"/>
-                <RadioButton Classes="tool" GroupName="DrawingTool"
-                             Content="Pan" Tag="Pan"
-                             ToolTip.Tip="화면 이동 (H)"/>
+                <RadioButton
+                    Classes="tool"
+                    Command="{Binding SelectToolCommand}"
+                    CommandParameter="Select"
+                    Content="Select"
+                    GroupName="DrawingTool"
+                    IsChecked="True"
+                    Tag="Select"
+                    ToolTip.Tip="선택 (V)" />
+                <RadioButton
+                    Classes="tool"
+                    Command="{Binding SelectToolCommand}"
+                    CommandParameter="Line"
+                    Content="Line"
+                    GroupName="DrawingTool"
+                    Tag="Line"
+                    ToolTip.Tip="선 (L)" />
+                <RadioButton
+                    Classes="tool"
+                    Command="{Binding SelectToolCommand}"
+                    CommandParameter="Rectangle"
+                    Content="Rect"
+                    GroupName="DrawingTool"
+                    Tag="Rectangle"
+                    ToolTip.Tip="사각형 (R)" />
+                <RadioButton
+                    Classes="tool"
+                    Command="{Binding SelectToolCommand}"
+                    CommandParameter="Circle"
+                    Content="Circle"
+                    GroupName="DrawingTool"
+                    Tag="Circle"
+                    ToolTip.Tip="원 (C)" />
+                <RadioButton
+                    Classes="tool"
+                    Command="{Binding SelectToolCommand}"
+                    CommandParameter="Polyline"
+                    Content="Polyline"
+                    GroupName="DrawingTool"
+                    Tag="Polyline"
+                    ToolTip.Tip="폴리라인 (P)" />
+                <RadioButton
+                    Classes="tool"
+                    Command="{Binding SelectToolCommand}"
+                    CommandParameter="Pan"
+                    Content="Pan"
+                    GroupName="DrawingTool"
+                    Tag="Pan"
+                    ToolTip.Tip="화면 이동 (H)" />
 
-                <!-- 구분선 -->
-                <Border Width="1" Margin="6,4"
-                        Background="{DynamicResource SystemControlForegroundBaseLowBrush}"/>
+                <!--  구분선  -->
+                <Border
+                    Background="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                    Margin="6,4"
+                    Width="1" />
 
-                <ToggleButton Classes="option" Content="Snap" IsChecked="True"
-                              ToolTip.Tip="스냅 켜기/끄기 (F3)"/>
+                <ToggleButton
+                    Classes="option"
+                    Content="Snap"
+                    IsChecked="True"
+                    ToolTip.Tip="스냅 켜기/끄기 (F3)" />
 
             </StackPanel>
         </Border>

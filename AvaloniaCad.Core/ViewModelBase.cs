@@ -1,7 +1,8 @@
-﻿using Container.Core.Interfaces;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using Container.Core.Interfaces;
 
 namespace AvaloniaCad.Core;
 
-public class ViewModelBase : IViewModelBase
+public class ViewModelBase : ObservableObject, IViewModelBase
 {
 }

@@ -3,37 +3,48 @@
     d:DesignWidth="800"
     mc:Ignorable="d"
     x:Class="AvaloniaCad.Editor.Views.EditorView"
+    x:DataType="vm:EditorViewModel"
     xmlns="https://github.com/avaloniaui"
     xmlns:controls="clr-namespace:AvaloniaCad.Editor.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:AvaloniaCad.Editor.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <Grid RowDefinitions="Auto,*,Auto"
-          ColumnDefinitions="220,*,280">
+    <Grid ColumnDefinitions="220,*,280" RowDefinitions="Auto,*,Auto">
 
-        <controls:EditorToolbar Grid.Row="0"
-                Grid.Column="0"
-                Grid.ColumnSpan="3"/>
+        <controls:EditorToolbar
+            Grid.Column="0"
+            Grid.ColumnSpan="3"
+            Grid.Row="0" />
 
-        <controls:DrawingCanvas 
-            x:Name="DrawingArea"
+        <controls:DrawingCanvas
+            Document="{Binding CadDocument}"
+            Grid.Column="1"
             Grid.Row="1"
-            Grid.Column="1"/>
-        
-        <!-- 상태 표시줄 -->
-        <Border Grid.Row="2"
-                Grid.Column="0"
-                Grid.ColumnSpan="3"
-                Background="#007ACC"
-                Padding="10,3">
+            Tool="{Binding CurrentTool}"
+            x:Name="DrawingArea" />
+
+        <!--  상태 표시줄  -->
+        <Border
+            Background="#007ACC"
+            Grid.Column="0"
+            Grid.ColumnSpan="3"
+            Grid.Row="2"
+            Padding="10,3">
             <StackPanel Orientation="Horizontal" Spacing="20">
-                <TextBlock MinWidth="110" Foreground="White"
-                           Text="{Binding #DrawingArea.CursorWorld.X, StringFormat='X: {0:F2} mm'}"/>
-                <TextBlock MinWidth="110" Foreground="White"
-                           Text="{Binding #DrawingArea.CursorWorld.Y, StringFormat='Y: {0:F2} mm'}"/>
-                <TextBlock MinWidth="90" Foreground="White"
-                           Text="{Binding #DrawingArea.ZoomFactor, StringFormat='Zoom: {0:P0}'}"/>
+                <TextBlock
+                    Foreground="White"
+                    MinWidth="110"
+                    Text="{Binding #DrawingArea.CursorWorld.X, StringFormat='X: {0:F2} mm'}" />
+                <TextBlock
+                    Foreground="White"
+                    MinWidth="110"
+                    Text="{Binding #DrawingArea.CursorWorld.Y, StringFormat='Y: {0:F2} mm'}" />
+                <TextBlock
+                    Foreground="White"
+                    MinWidth="90"
+                    Text="{Binding #DrawingArea.ZoomFactor, StringFormat='Zoom: {0:P0}'}" />
             </StackPanel>
         </Border>
     </Grid>
