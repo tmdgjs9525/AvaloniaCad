@@ -3,7 +3,7 @@ using KoDrawing.Core.Entities;
 
 namespace AvaloniaCad.Editor.Tools;
 
-internal interface ITool
+public interface ITool
 {
     /// <summary>그리는 중인 도형 (화면에 미리보기로 표시)</summary>
     IReadOnlyList<Entity> Preview { get; }
