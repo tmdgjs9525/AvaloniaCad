@@ -17,12 +17,15 @@ public partial class EditorViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void SelectTool(string toolName)
+    private void SelectTool(ToolKind kind)
     {
-        CurrentTool = toolName switch
+        CurrentTool = kind switch
         {
-            "Line" => new LineTool(entity => CadDocument.Add(entity)),
-            _ => new NullTool(),
+            ToolKind.Line => new LineTool(CadDocument.Add),
+            ToolKind.Rectangle => new RectangleTool(CadDocument.Add),
+            ToolKind.Circle => new CircleTool(CadDocument.Add),
+            ToolKind.Polyline => new PolylineTool(CadDocument.Add),
+            _ => new NullTool(),   // Select, Pan은 아직 미구현
         };
     }
 }

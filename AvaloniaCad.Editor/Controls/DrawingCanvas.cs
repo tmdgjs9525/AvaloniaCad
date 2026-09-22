@@ -113,7 +113,11 @@ public class DrawingCanvas : Control
         }
         else if (point.Properties.IsRightButtonPressed)
         {
-            Tool?.Cancel();
+            if (Tool is PolylineTool polylineTool)
+                polylineTool.Finish();
+            else
+                Tool?.Cancel();
+
             InvalidateVisual();
             e.Handled = true;
         }
