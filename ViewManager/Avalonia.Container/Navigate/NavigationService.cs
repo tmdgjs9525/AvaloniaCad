@@ -1,9 +1,8 @@
 using Avalonia.Container.Region;
-using Container.Core.Interfaces;
-using Container.Core.Parameter;
-using Container.Core.Interfaces;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.DependencyInjection;
+using Container.Core.Interfaces;
+using Container.Core.Parameter;
 
 namespace Avalonia.Container.Navigate
 {

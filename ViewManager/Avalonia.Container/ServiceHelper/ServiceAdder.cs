@@ -1,11 +1,10 @@
 using Avalonia.Container.Dialog;
 using Avalonia.Container.Navigate;
 using Avalonia.Container.Region;
-using Wpf.Container.Extensions;
+using Container.Core.Interfaces;
 using Eye.Base.Extensions;
-using Container.Core.Interfaces;
-using Container.Core.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
+using Wpf.Container.Extensions;
 
 namespace Avalonia.Container.ServiceHelper
 {
