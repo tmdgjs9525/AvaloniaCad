@@ -32,7 +32,7 @@ public sealed class SelectTool : ITool
             {
                 _onSelectionChanged(entity);
                 return;
-            }
+            } 
         }
 
         _onSelectionChanged(null);   // 빈 곳 클릭 → 선택 해제

@@ -36,6 +36,7 @@ public sealed class ViewportTransform
             d.X * Zoom + ViewportCenter.X,
             -d.Y * Zoom + ViewportCenter.Y);
     }
+    
 
     public Vector2 ScreenToWorld(Vector2 screen)
     {

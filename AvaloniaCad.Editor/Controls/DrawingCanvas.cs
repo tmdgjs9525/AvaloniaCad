@@ -123,7 +123,7 @@ public class DrawingCanvas : Control
         else if (point.Properties.IsLeftButtonPressed)
         {
             Focus();
-            _tool.OnPointerPressed(ScreenToSnappedWorld(point.Position)); 
+            _tool.OnPointerPressed(WorldPositionFor(point.Position)); 
             InvalidateVisual();
             e.Handled = true;
         }
@@ -152,7 +152,7 @@ public class DrawingCanvas : Control
             _lastPointer = pos;
         }
 
-        _tool.OnPointerMoved(ScreenToSnappedWorld(pos));  
+        _tool.OnPointerMoved(WorldPositionFor(pos));  
 
         UpdateCursorWorld(pos);
         InvalidateVisual();
@@ -270,5 +270,13 @@ public class DrawingCanvas : Control
         return new Vector2(
             MathF.Round(world.X / spacing) * spacing,
             MathF.Round(world.Y / spacing) * spacing);
+    }
+    
+    private Vector2 WorldPositionFor(Point screenPos)
+    {
+        // Select 도구는 실제 클릭 위치로 판정해야 하므로 스냅을 적용하지 않음
+        return ToolKind == ToolKind.Select
+            ? Viewport.ScreenToWorld(ToVector2(screenPos))
+            : ScreenToSnappedWorld(screenPos);
     }
 }
