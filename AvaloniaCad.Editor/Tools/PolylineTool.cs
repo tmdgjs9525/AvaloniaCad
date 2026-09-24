@@ -44,8 +44,7 @@ public sealed class PolylineTool : ITool
     {
         for (var i = 0; i < _points.Count - 1; i++)
             _commit(new LineEntity { Start = _points[i], End = _points[i + 1] });
-
-        _commit(new LineEntity {  Start = _points[^1], End = _points[0] });
+        
         _points.Clear();
     }
 
