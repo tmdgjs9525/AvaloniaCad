@@ -18,7 +18,31 @@ internal static class EntityRenderer
 
         DrawAll(canvas, viewport, entities, paint);
     }
+    
+    public static void DrawHighlight(SKCanvas canvas, ViewportTransform viewport, Entity entity)
+    {
+        using var paint = new SKPaint
+        {
+            Color = SKColors.OrangeRed,
+            Style = SKPaintStyle.Stroke,
+            StrokeWidth = 3f,      // 일반 선(1.5f)보다 굵게
+            IsAntialias = true
+        };
 
+        switch (entity)
+        {
+            case LineEntity line:
+                DrawLine(canvas, viewport, line, paint);
+                break;
+            case CircleEntity circle:
+                DrawCircle(canvas, viewport, circle, paint);
+                break;
+            case RectangleEntity rect:
+                DrawRectangle(canvas, viewport, rect, paint);
+                break;
+        }
+    }
+    
     // 그리는 중인 도형: 파란 점선
     public static void DrawPreview(SKCanvas canvas, ViewportTransform viewport, IReadOnlyList<Entity> entities)
     {

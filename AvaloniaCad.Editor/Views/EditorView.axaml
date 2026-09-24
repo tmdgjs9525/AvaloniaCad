@@ -21,9 +21,10 @@
         <controls:DrawingCanvas
             Document="{Binding CadDocument}"
             Grid.Column="1"
-            SnapEnabled="{Binding SnapEnabled}"
             Grid.Row="1"
-            Tool="{Binding CurrentTool}"
+            ToolKind="{Binding CurrentToolKind}"
+            SnapEnabled="{Binding SnapEnabled}"
+            SelectedEntity="{Binding SelectedEntity}"
             x:Name="DrawingArea" />
 
         <!--  상태 표시줄  -->

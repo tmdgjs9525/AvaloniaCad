@@ -1,6 +1,7 @@
 ﻿using System.Numerics;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Media;
 using AvaloniaCad.Editor.Rendering;
@@ -12,12 +13,14 @@ namespace AvaloniaCad.Editor.Controls;
 
 public class DrawingCanvas : Control
 {
+    private ITool _tool = new NullTool();
     // 휠 한 칸당 10% 확대/축소
     private const double ZoomStep = 1.1;
 
     static DrawingCanvas()
     {
         DocumentProperty.Changed.AddClassHandler<DrawingCanvas>((c, e) => c.OnDocumentChanged(e));
+        ToolKindProperty.Changed.AddClassHandler<DrawingCanvas>((c, _) => c.RebuildTool()); 
     }
 
     // 상태 표시줄 바인딩용. Vector2의 X/Y는 필드라서 Avalonia 바인딩이 안 되므로 Point 사용.
@@ -29,13 +32,29 @@ public class DrawingCanvas : Control
 
     public static readonly StyledProperty<CadDocument?> DocumentProperty =
         AvaloniaProperty.Register<DrawingCanvas, CadDocument?>(nameof(Document));
-
-    public static readonly StyledProperty<ITool?> ToolProperty =
-        AvaloniaProperty.Register<DrawingCanvas, ITool?>(nameof(Tool));
-
+    
     public static readonly StyledProperty<bool> SnapEnabledProperty = AvaloniaProperty.Register<DrawingCanvas, bool>(
         nameof(SnapEnabled));
 
+    public static readonly StyledProperty<ToolKind> ToolKindProperty =
+        AvaloniaProperty.Register<DrawingCanvas, ToolKind>(nameof(ToolKind));
+
+    public static readonly StyledProperty<Entity?> SelectedEntityProperty =
+        AvaloniaProperty.Register<DrawingCanvas, Entity?>(nameof(SelectedEntity), defaultBindingMode: BindingMode.TwoWay);
+
+    public ToolKind ToolKind
+    {
+        get => GetValue(ToolKindProperty);
+        set => SetValue(ToolKindProperty, value);
+    }
+
+    public Entity? SelectedEntity
+    {
+        get => GetValue(SelectedEntityProperty);
+        set => SetValue(SelectedEntityProperty, value);
+    }
+
+    
     public bool SnapEnabled
     {
         get => GetValue(SnapEnabledProperty);
@@ -55,18 +74,10 @@ public class DrawingCanvas : Control
         private set => SetValue(ZoomFactorProperty, value);
     }
 
-    /// <summary>편집 대상 문서. ViewModel에서 바인딩으로 주입.</summary>
     public CadDocument? Document
     {
         get => GetValue(DocumentProperty);
         set => SetValue(DocumentProperty, value);
-    }
-
-    /// <summary>현재 활성 도구. ViewModel에서 바인딩으로 주입.</summary>
-    public ITool? Tool
-    {
-        get => GetValue(ToolProperty);
-        set => SetValue(ToolProperty, value);
     }
 
     private ViewportTransform Viewport { get; } = new();
@@ -86,13 +97,10 @@ public class DrawingCanvas : Control
         var localBounds = new Rect(Bounds.Size);
 
         var entities = Document?.Entities ?? Array.Empty<Entity>();
-        var preview = Tool?.Preview ?? Array.Empty<Entity>();
+        var preview = _tool.Preview ?? Array.Empty<Entity>();
 
         context.Custom(new SkiaDrawOperation(
-            localBounds,
-            Viewport.Clone(),
-            entities.ToArray(),
-            preview));
+            localBounds, Viewport.Clone(), entities.ToArray(), preview, SelectedEntity));
     }
 
     // ───────── 입력 ─────────
@@ -115,16 +123,16 @@ public class DrawingCanvas : Control
         else if (point.Properties.IsLeftButtonPressed)
         {
             Focus();
-            Tool?.OnPointerPressed(ScreenToSnappedWorld(point.Position)); 
+            _tool.OnPointerPressed(ScreenToSnappedWorld(point.Position)); 
             InvalidateVisual();
             e.Handled = true;
         }
         else if (point.Properties.IsRightButtonPressed)
         {
-            if (Tool is PolylineTool polylineTool)
+            if (_tool is PolylineTool polylineTool)
                 polylineTool.Finish();
             else
-                Tool?.Cancel();
+                _tool.Cancel();
 
             InvalidateVisual();
             e.Handled = true;
@@ -144,7 +152,7 @@ public class DrawingCanvas : Control
             _lastPointer = pos;
         }
 
-        Tool?.OnPointerMoved(ScreenToSnappedWorld(pos));  
+        _tool.OnPointerMoved(ScreenToSnappedWorld(pos));  
 
         UpdateCursorWorld(pos);
         InvalidateVisual();
@@ -156,7 +164,7 @@ public class DrawingCanvas : Control
 
         if (e.Key == Key.Escape)
         {
-            Tool?.Cancel();
+            _tool.Cancel();
             InvalidateVisual();
             e.Handled = true;
         }
@@ -206,6 +214,24 @@ public class DrawingCanvas : Control
 
         if (e.NewValue is CadDocument newDoc)
             newDoc.Changed += InvalidateVisual;
+
+        InvalidateVisual();
+    }
+    
+    private void RebuildTool()
+    {
+        _tool = ToolKind switch
+        {
+            ToolKind.Select => new SelectTool(
+                Document ?? new CadDocument(),
+                entity => SelectedEntity = entity,
+                () => 10f / Viewport.Zoom),   // 화면 5px를 현재 줌 기준 mm로 환산
+            ToolKind.Line => new LineTool(entity => Document?.Add(entity)),
+            ToolKind.Rectangle => new RectangleTool(entity => Document?.Add(entity)),
+            ToolKind.Circle => new CircleTool(entity => Document?.Add(entity)),
+            ToolKind.Polyline => new PolylineTool(entity => Document?.Add(entity)),
+            _ => new NullTool(),
+        };
 
         InvalidateVisual();
     }
