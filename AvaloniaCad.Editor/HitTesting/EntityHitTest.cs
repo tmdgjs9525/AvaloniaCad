@@ -13,7 +13,8 @@ internal static class EntityHitTest
             LineEntity line => DistanceToSegment(point, line.Start, line.End) <= tolerance,
             CircleEntity circle => HitTestCircle(point, circle, tolerance),
             RectangleEntity rect => HitTestRectangle(point, rect, tolerance),
-            _ => false,
+            _ => throw new NotSupportedException(
+                $"{entity.GetType().Name}의 히트 테스트가 구현되지 않았습니다."),
         };
     }
 

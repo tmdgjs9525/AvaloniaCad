@@ -1,4 +1,5 @@
-﻿using KoDrawing.Core;
+﻿using CommunityToolkit.Mvvm.ComponentModel.__Internals;
+using KoDrawing.Core;
 using KoDrawing.Core.Entities;
 using SkiaSharp;
 
