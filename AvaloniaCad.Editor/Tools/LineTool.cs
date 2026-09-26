@@ -39,6 +39,11 @@ internal sealed class LineTool : ITool
             _end = world;
     }
 
+    public void OnPointerReleased(Vector2 world)
+    {
+        
+    }
+
     public void Cancel()
     {
         _start = null;

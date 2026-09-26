@@ -3,6 +3,7 @@ using Avalonia;
 using Avalonia.Media;
 using Avalonia.Rendering.SceneGraph;
 using Avalonia.Skia;
+using AvaloniaCad.Editor.HitTesting;
 using KoDrawing.Core;
 using KoDrawing.Core.Entities;
 using SkiaSharp;
@@ -14,6 +15,7 @@ public sealed class SkiaDrawOperation : ICustomDrawOperation
     private readonly ViewportTransform _viewport;
     private readonly IReadOnlyList<Entity> _entities;
     private readonly IReadOnlyList<Entity> _preview;
+    private readonly IReadOnlyList<Grip> _grips;
     private readonly Entity? _selectedEntity;
 
     public Rect Bounds { get; }
@@ -23,12 +25,14 @@ public sealed class SkiaDrawOperation : ICustomDrawOperation
         ViewportTransform viewport,
         IReadOnlyList<Entity> entities,
         IReadOnlyList<Entity> preview,
+        IReadOnlyList<Grip> grips,
         Entity? selectedEntity = null)
     {
         Bounds = bounds;
         _viewport = viewport;
         _entities = entities;
         _preview = preview;
+        _grips = grips;
         _selectedEntity = selectedEntity;
     }
     
@@ -53,6 +57,8 @@ public sealed class SkiaDrawOperation : ICustomDrawOperation
             GridRenderer.Draw(canvas, _viewport, w, h);
             EntityRenderer.Draw(canvas, _viewport, _entities);
             EntityRenderer.DrawPreview(canvas, _viewport, _preview);
+            EntityRenderer.DrawGrips(canvas, _viewport, _grips);
+            
             if (_selectedEntity is not null)
                 EntityRenderer.DrawHighlight(canvas, _viewport, _selectedEntity);
             // 월드 원점 축 (X: 빨강, Y: 초록)

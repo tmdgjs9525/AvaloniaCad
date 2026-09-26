@@ -1,5 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel.__Internals;
-using KoDrawing.Core;
+﻿using KoDrawing.Core;
 using KoDrawing.Core.Entities;
 using SkiaSharp;
 
@@ -19,32 +18,20 @@ internal static class EntityRenderer
 
         DrawAll(canvas, viewport, entities, paint);
     }
-    
+
     public static void DrawHighlight(SKCanvas canvas, ViewportTransform viewport, Entity entity)
     {
         using var paint = new SKPaint
         {
             Color = SKColors.OrangeRed,
             Style = SKPaintStyle.Stroke,
-            StrokeWidth = 3f,      // 일반 선(1.5f)보다 굵게
+            StrokeWidth = 3f,
             IsAntialias = true
         };
 
-        switch (entity)
-        {
-            case LineEntity line:
-                DrawLine(canvas, viewport, line, paint);
-                break;
-            case CircleEntity circle:
-                DrawCircle(canvas, viewport, circle, paint);
-                break;
-            case RectangleEntity rect:
-                DrawRectangle(canvas, viewport, rect, paint);
-                break;
-        }
+        DrawOne(canvas, viewport, entity, paint);
     }
-    
-    // 그리는 중인 도형: 파란 점선
+
     public static void DrawPreview(SKCanvas canvas, ViewportTransform viewport, IReadOnlyList<Entity> entities)
     {
         if (entities.Count == 0)
@@ -63,22 +50,53 @@ internal static class EntityRenderer
         DrawAll(canvas, viewport, entities, paint);
     }
 
+    public static void DrawGrips(SKCanvas canvas, ViewportTransform viewport, IReadOnlyList<HitTesting.Grip> grips)
+    {
+        using var fill = new SKPaint { Color = SKColors.White, Style = SKPaintStyle.Fill, IsAntialias = true };
+        using var border = new SKPaint { Color = SKColors.OrangeRed, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f, IsAntialias = true };
+
+        foreach (var grip in grips)
+        {
+            var p = viewport.WorldToScreen(grip.Position);
+            var rect = new SKRect(p.X - 4, p.Y - 4, p.X + 4, p.Y + 4);
+            canvas.DrawRect(rect, fill);
+            canvas.DrawRect(rect, border);
+        }
+    }
+
     private static void DrawAll(SKCanvas canvas, ViewportTransform viewport, IReadOnlyList<Entity> entities, SKPaint paint)
     {
         foreach (var entity in entities)
         {
-            switch (entity)
+            try
             {
-                case LineEntity line:
-                    DrawLine(canvas, viewport, line, paint);
-                    break;
-                case CircleEntity circle:
-                    DrawCircle(canvas, viewport, circle, paint);
-                    break;
-                case RectangleEntity rect:
-                    DrawRectangle(canvas, viewport, rect, paint);
-                    break;
+                DrawOne(canvas, viewport, entity, paint);
             }
+            catch (NotSupportedException ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+            }
+        }
+    }
+
+    private static void DrawOne(SKCanvas canvas, ViewportTransform viewport, Entity entity, SKPaint paint)
+    {
+        switch (entity)
+        {
+            case LineEntity line:
+                DrawLine(canvas, viewport, line, paint);
+                break;
+            case CircleEntity circle:
+                DrawCircle(canvas, viewport, circle, paint);
+                break;
+            case RectangleEntity rect:
+                DrawRectangle(canvas, viewport, rect, paint);
+                break;
+            case PolylineEntity polyline:
+                DrawPolyline(canvas, viewport, polyline, paint);
+                break;
+            default:
+                throw new NotSupportedException($"{entity.GetType().Name} 렌더링 미구현");
         }
     }
 
@@ -95,19 +113,30 @@ internal static class EntityRenderer
         var r = circle.Radius * viewport.Zoom;
         canvas.DrawCircle(c.X, c.Y, r, paint);
     }
-    
+
     private static void DrawRectangle(SKCanvas canvas, ViewportTransform viewport, RectangleEntity rect, SKPaint paint)
     {
         var a = viewport.WorldToScreen(rect.Corner1);
         var b = viewport.WorldToScreen(rect.Corner2);
 
-        // 화면 좌표는 Y가 뒤집혀 있을 수 있으므로, 어느 점이 위/아래인지 따지지 않고
-        // Min/Max로 항상 올바른 사각형을 만든다.
         var left = MathF.Min(a.X, b.X);
         var right = MathF.Max(a.X, b.X);
         var top = MathF.Min(a.Y, b.Y);
         var bottom = MathF.Max(a.Y, b.Y);
 
         canvas.DrawRect(new SKRect(left, top, right, bottom), paint);
+    }
+
+    private static void DrawPolyline(SKCanvas canvas, ViewportTransform viewport, PolylineEntity polyline, SKPaint paint)
+    {
+        if (polyline.Points.Count < 2)
+            return;
+
+        for (var i = 0; i < polyline.Points.Count - 1; i++)
+        {
+            var a = viewport.WorldToScreen(polyline.Points[i]);
+            var b = viewport.WorldToScreen(polyline.Points[i + 1]);
+            canvas.DrawLine(a.X, a.Y, b.X, b.Y, paint);
+        }
     }
 }

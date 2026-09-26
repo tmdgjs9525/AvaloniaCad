@@ -7,9 +7,15 @@ namespace AvaloniaCad.Editor.Tools;
 
 public sealed class SelectTool : ITool
 {
+    public IReadOnlyList<Grip> CurrentGrips => _currentGrips;
+
+    private Grip? _draggingGrip;
+    private IReadOnlyList<Grip> _currentGrips = Array.Empty<Grip>();
+    private Entity? _selected;
+
     private readonly CadDocument _document;
     private readonly Action<Entity?> _onSelectionChanged;
-    private readonly Func<float> _pixelToleranceInWorld;   // 화면 5px를 현재 줌 기준 mm로 환산
+    private readonly Func<float> _pixelToleranceInWorld;
 
     public SelectTool(CadDocument document, Action<Entity?> onSelectionChanged, Func<float> pixelToleranceInWorld)
     {
@@ -24,20 +30,57 @@ public sealed class SelectTool : ITool
     {
         var tolerance = _pixelToleranceInWorld();
 
-        // 뒤에 그려진 것부터가 아니라, 나중에 그려진(위에 있는) 도형을 먼저 찾도록 역순 탐색
+        // 1) 이미 선택된 도형이 있으면, 그립부터 먼저 검사 (몸통보다 우선)
+        foreach (var grip in _currentGrips)
+        {
+            if (Vector2.Distance(grip.Position, world) <= tolerance)
+            {
+                _draggingGrip = grip;
+                return;   // 그립을 잡았으니 몸통 검사는 안 함
+            }
+        }
+
+        // 2) 그립에 안 맞았으면 기존처럼 몸통 검사
         for (var i = _document.Entities.Count - 1; i >= 0; i--)
         {
             var entity = _document.Entities[i];
             if (EntityHitTest.HitTest(entity, world, tolerance))
             {
-                _onSelectionChanged(entity);
+                Select(entity);
                 return;
-            } 
+            }
         }
 
-        _onSelectionChanged(null);   // 빈 곳 클릭 → 선택 해제
+        Select(null);   // 빈 곳 클릭 → 선택 해제
     }
 
-    public void OnPointerMoved(Vector2 world) { }
-    public void Cancel() { }
+    public void OnPointerMoved(Vector2 world)
+    {
+        if (_draggingGrip is not null)
+        {
+            _draggingGrip.MoveTo(world);
+            RebuildGrips();   // 도형이 바뀌었으니 그립 위치도 다시 계산
+        }
+    }
+
+    public void OnPointerReleased(Vector2 world) => _draggingGrip = null;
+
+    public void Cancel()
+    {
+        _draggingGrip = null;
+    }
+
+    private void Select(Entity? entity)
+    {
+        _selected = entity;
+        _onSelectionChanged(entity);
+        RebuildGrips();
+    }
+
+    private void RebuildGrips()
+    {
+        _currentGrips = _selected is not null
+            ? EntityGrips.GetGrips(_selected)
+            : Array.Empty<Grip>();
+    }
 }

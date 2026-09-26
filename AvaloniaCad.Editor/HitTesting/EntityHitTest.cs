@@ -5,7 +5,6 @@ namespace AvaloniaCad.Editor.HitTesting;
 
 internal static class EntityHitTest
 {
-    /// <summary>world 좌표 point가 entity와 tolerance(월드 단위, mm) 이내로 가까우면 true</summary>
     public static bool HitTest(Entity entity, Vector2 point, float tolerance)
     {
         return entity switch
@@ -13,8 +12,8 @@ internal static class EntityHitTest
             LineEntity line => DistanceToSegment(point, line.Start, line.End) <= tolerance,
             CircleEntity circle => HitTestCircle(point, circle, tolerance),
             RectangleEntity rect => HitTestRectangle(point, rect, tolerance),
-            _ => throw new NotSupportedException(
-                $"{entity.GetType().Name}의 히트 테스트가 구현되지 않았습니다."),
+            PolylineEntity polyline => HitTestPolyline(point, polyline, tolerance),
+            _ => throw new NotSupportedException($"{entity.GetType().Name}의 히트 테스트가 구현되지 않았습니다."),
         };
     }
 
@@ -41,16 +40,25 @@ internal static class EntityHitTest
             || DistanceToSegment(point, bottomLeft, topLeft) <= tolerance;
     }
 
-    // 점 p에서 선분 a-b까지의 최단 거리
+    private static bool HitTestPolyline(Vector2 point, PolylineEntity polyline, float tolerance)
+    {
+        for (var i = 0; i < polyline.Points.Count - 1; i++)
+        {
+            if (DistanceToSegment(point, polyline.Points[i], polyline.Points[i + 1]) <= tolerance)
+                return true;
+        }
+
+        return false;
+    }
+
     private static float DistanceToSegment(Vector2 p, Vector2 a, Vector2 b)
     {
         var ab = b - a;
         var lengthSq = ab.LengthSquared();
 
         if (lengthSq < 0.0001f)
-            return Vector2.Distance(p, a);   // 선분이 점에 가까울 때 (길이 0)
+            return Vector2.Distance(p, a);
 
-        // p를 a-b 선 위에 투영했을 때의 비율 t (0~1로 clamp해서 선분 밖으로 안 나가게)
         var t = Vector2.Dot(p - a, ab) / lengthSq;
         t = Math.Clamp(t, 0f, 1f);
 

@@ -38,13 +38,16 @@ public sealed class PolylineTool : ITool
     }
 
     public void OnPointerMoved(Vector2 world) => _cursor = world;
+    public void OnPointerReleased(Vector2 world)
+    {
+        
+    }
 
-    /// <summary>우클릭으로 폴리라인을 마무리할 때 호출 (DrawingCanvas에서 연결 필요)</summary>
     public void Finish()
     {
-        for (var i = 0; i < _points.Count - 1; i++)
-            _commit(new LineEntity { Start = _points[i], End = _points[i + 1] });
-        
+        if (_points.Count >= 2)
+            _commit(new PolylineEntity { Points = new List<Vector2>(_points) });
+
         _points.Clear();
     }
 

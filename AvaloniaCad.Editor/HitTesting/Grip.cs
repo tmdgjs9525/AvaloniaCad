@@ -1,14 +1,22 @@
-﻿using KoDrawing.Core.Entities;
+﻿using System.Numerics;
+using KoDrawing.Core.Entities;
 
 namespace AvaloniaCad.Editor.HitTesting;
 
-public class Grip
+public sealed class Grip
 {
-    private readonly Entity  _entity;
-    public Grip(Entity entity)
+    public Vector2 Position { get; private set; }
+    private readonly Action<Vector2> _moveTo;
+
+    public Grip(Vector2 position, Action<Vector2> moveTo)
     {
-        _entity = entity;
+        Position = position;
+        _moveTo = moveTo;
     }
-    
-    
+
+    public void MoveTo(Vector2 newPosition)
+    {
+        Position = newPosition;
+        _moveTo(newPosition);
+    }
 }

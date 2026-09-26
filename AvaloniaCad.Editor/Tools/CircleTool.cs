@@ -39,5 +39,10 @@ public sealed class CircleTool : ITool
             _radius = Vector2.Distance(center, world);
     }
 
+    public void OnPointerReleased(Vector2 world)
+    {
+        
+    }
+
     public void Cancel() => _center = null;
 }

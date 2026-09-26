@@ -10,5 +10,6 @@ public interface ITool
 
     void OnPointerPressed(Vector2 world);
     void OnPointerMoved(Vector2 world);
+    void OnPointerReleased(Vector2 world);
     void Cancel();
 }

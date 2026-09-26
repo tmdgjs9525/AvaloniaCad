@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Media;
+using AvaloniaCad.Editor.HitTesting;
 using AvaloniaCad.Editor.Rendering;
 using AvaloniaCad.Editor.Tools;
 using KoDrawing.Core;
@@ -98,9 +99,10 @@ public class DrawingCanvas : Control
 
         var entities = Document?.Entities ?? Array.Empty<Entity>();
         var preview = _tool.Preview ?? Array.Empty<Entity>();
-
+        var grips = _tool is SelectTool select ? select.CurrentGrips : Array.Empty<Grip>();
+        
         context.Custom(new SkiaDrawOperation(
-            localBounds, Viewport.Clone(), entities.ToArray(), preview, SelectedEntity));
+            localBounds, Viewport.Clone(), entities.ToArray(), preview, grips, SelectedEntity));
     }
 
     // ───────── 입력 ─────────
@@ -178,8 +180,14 @@ public class DrawingCanvas : Control
         {
             e.Pointer.Capture(null);
             EndPan();
-            e.Handled = true;
         }
+        else
+        {
+            _tool.OnPointerReleased(ScreenToSnappedWorld(e.GetPosition(this)));
+            InvalidateVisual();
+        }
+
+        e.Handled = true;
     }
 
     // 창 밖에서 놓거나 포커스를 잃는 경우에도 Pan 상태가 남지 않게 한다

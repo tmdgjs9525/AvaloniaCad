@@ -39,5 +39,10 @@ public sealed class RectangleTool : ITool
             _end = world;
     }
 
+    public void OnPointerReleased(Vector2 world)
+    {
+        
+    }
+
     public void Cancel() => _start = null;
 }
