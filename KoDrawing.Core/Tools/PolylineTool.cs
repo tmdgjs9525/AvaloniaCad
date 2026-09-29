@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 using KoDrawing.Core.Entities;
 
-namespace AvaloniaCad.Editor.Tools;
+namespace KoDrawing.Core.Tools;
 
 public sealed class PolylineTool : ITool
 {

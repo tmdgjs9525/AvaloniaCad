@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 using KoDrawing.Core.Entities;
 
-namespace AvaloniaCad.Editor.HitTesting;
+namespace KoDrawing.Core.HitTesting;
 
 internal static class EntityHitTest
 {

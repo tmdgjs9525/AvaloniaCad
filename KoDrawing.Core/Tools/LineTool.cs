@@ -1,9 +1,9 @@
 ﻿using System.Numerics;
 using KoDrawing.Core.Entities;
 
-namespace AvaloniaCad.Editor.Tools;
+namespace KoDrawing.Core.Tools;
 
-internal sealed class LineTool : ITool
+public sealed class LineTool : ITool
 {
     private readonly Action<Entity> _commit;   // 완성된 도형을 문서에 넣어주는 함수
     private Vector2? _start;

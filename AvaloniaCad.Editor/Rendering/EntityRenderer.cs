@@ -1,5 +1,6 @@
 ﻿using KoDrawing.Core;
 using KoDrawing.Core.Entities;
+using KoDrawing.Core.HitTesting;
 using SkiaSharp;
 
 namespace AvaloniaCad.Editor.Rendering;
@@ -50,7 +51,7 @@ internal static class EntityRenderer
         DrawAll(canvas, viewport, entities, paint);
     }
 
-    public static void DrawGrips(SKCanvas canvas, ViewportTransform viewport, IReadOnlyList<HitTesting.Grip> grips)
+    public static void DrawGrips(SKCanvas canvas, ViewportTransform viewport, IReadOnlyList<Grip> grips)
     {
         using var fill = new SKPaint { Color = SKColors.White, Style = SKPaintStyle.Fill, IsAntialias = true };
         using var border = new SKPaint { Color = SKColors.OrangeRed, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f, IsAntialias = true };

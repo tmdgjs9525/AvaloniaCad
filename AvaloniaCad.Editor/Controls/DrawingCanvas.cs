@@ -4,11 +4,12 @@ using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Media;
-using AvaloniaCad.Editor.HitTesting;
 using AvaloniaCad.Editor.Rendering;
 using AvaloniaCad.Editor.Tools;
 using KoDrawing.Core;
 using KoDrawing.Core.Entities;
+using KoDrawing.Core.HitTesting;
+using KoDrawing.Core.Tools;
 
 namespace AvaloniaCad.Editor.Controls;
 

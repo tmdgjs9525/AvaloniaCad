@@ -1,9 +1,8 @@
 ﻿using System.Numerics;
-using AvaloniaCad.Editor.HitTesting;
-using KoDrawing.Core;
 using KoDrawing.Core.Entities;
+using KoDrawing.Core.HitTesting;
 
-namespace AvaloniaCad.Editor.Tools;
+namespace KoDrawing.Core.Tools;
 
 public sealed class SelectTool : ITool
 {
