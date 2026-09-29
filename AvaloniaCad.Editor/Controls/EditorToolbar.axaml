@@ -79,6 +79,7 @@
                     CommandParameter="{x:Static tools:ToolKind.Select}"
                     Content="Select"
                     GroupName="DrawingTool"
+                    HotKey="V"
                     IsChecked="True"
                     ToolTip.Tip="선택 (V)" />
                 <RadioButton
@@ -87,6 +88,7 @@
                     CommandParameter="{x:Static tools:ToolKind.Line}"
                     Content="Line"
                     GroupName="DrawingTool"
+                    HotKey="L"
                     ToolTip.Tip="선 (L)" />
                 <RadioButton
                     Classes="tool"
@@ -94,6 +96,7 @@
                     CommandParameter="{x:Static tools:ToolKind.Rectangle}"
                     Content="Rect"
                     GroupName="DrawingTool"
+                    HotKey="R"
                     ToolTip.Tip="사각형 (R)" />
                 <RadioButton
                     Classes="tool"
@@ -101,6 +104,7 @@
                     CommandParameter="{x:Static tools:ToolKind.Circle}"
                     Content="Circle"
                     GroupName="DrawingTool"
+                    HotKey="C"
                     ToolTip.Tip="원 (C)" />
                 <RadioButton
                     Classes="tool"
@@ -108,6 +112,7 @@
                     CommandParameter="{x:Static tools:ToolKind.Polyline}"
                     Content="Polyline"
                     GroupName="DrawingTool"
+                    HotKey="P"
                     ToolTip.Tip="폴리라인 (P)" />
                 <RadioButton
                     Classes="tool"
@@ -115,6 +120,7 @@
                     CommandParameter="{x:Static tools:ToolKind.Pan}"
                     Content="Pan"
                     GroupName="DrawingTool"
+                    HotKey="H"
                     ToolTip.Tip="화면 이동 (H)" />
 
                 <!--  구분선  -->
