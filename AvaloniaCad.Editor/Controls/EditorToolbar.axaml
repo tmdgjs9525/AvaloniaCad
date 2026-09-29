@@ -7,8 +7,8 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:tools="clr-namespace:KoDrawing.Core.Tools;assembly=KoDrawing.Core"
     xmlns:vm="clr-namespace:AvaloniaCad.Editor.ViewModels"
-    xmlns:tools="clr-namespace:AvaloniaCad.Editor.Tools"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <UserControl.Styles>
         <!--  RadioButton을 토글 버튼 모양으로 표시 (같은 GroupName 안에서 하나만 선택됨)  -->
@@ -73,36 +73,49 @@
 
             <StackPanel Orientation="Horizontal" Spacing="4">
 
-                <RadioButton Classes="tool" GroupName="DrawingTool"
-                             Content="Select" IsChecked="True"
-                             Command="{Binding SelectToolCommand}"
-                             CommandParameter="{x:Static tools:ToolKind.Select}"
-                             ToolTip.Tip="선택 (V)"/>
-                <RadioButton Classes="tool" GroupName="DrawingTool"
-                             Content="Line"
-                             Command="{Binding SelectToolCommand}"
-                             CommandParameter="{x:Static tools:ToolKind.Line}"
-                             ToolTip.Tip="선 (L)"/>
-                <RadioButton Classes="tool" GroupName="DrawingTool"
-                             Content="Rect"
-                             Command="{Binding SelectToolCommand}"
-                             CommandParameter="{x:Static tools:ToolKind.Rectangle}"
-                             ToolTip.Tip="사각형 (R)"/>
-                <RadioButton Classes="tool" GroupName="DrawingTool"
-                             Content="Circle"
-                             Command="{Binding SelectToolCommand}"
-                             CommandParameter="{x:Static tools:ToolKind.Circle}"
-                             ToolTip.Tip="원 (C)"/>
-                <RadioButton Classes="tool" GroupName="DrawingTool"
-                             Content="Polyline"
-                             Command="{Binding SelectToolCommand}"
-                             CommandParameter="{x:Static tools:ToolKind.Polyline}"
-                             ToolTip.Tip="폴리라인 (P)"/>
-                <RadioButton Classes="tool" GroupName="DrawingTool"
-                             Content="Pan"
-                             Command="{Binding SelectToolCommand}"
-                             CommandParameter="{x:Static tools:ToolKind.Pan}"
-                             ToolTip.Tip="화면 이동 (H)"/>
+                <RadioButton
+                    Classes="tool"
+                    Command="{Binding SelectToolCommand}"
+                    CommandParameter="{x:Static tools:ToolKind.Select}"
+                    Content="Select"
+                    GroupName="DrawingTool"
+                    IsChecked="True"
+                    ToolTip.Tip="선택 (V)" />
+                <RadioButton
+                    Classes="tool"
+                    Command="{Binding SelectToolCommand}"
+                    CommandParameter="{x:Static tools:ToolKind.Line}"
+                    Content="Line"
+                    GroupName="DrawingTool"
+                    ToolTip.Tip="선 (L)" />
+                <RadioButton
+                    Classes="tool"
+                    Command="{Binding SelectToolCommand}"
+                    CommandParameter="{x:Static tools:ToolKind.Rectangle}"
+                    Content="Rect"
+                    GroupName="DrawingTool"
+                    ToolTip.Tip="사각형 (R)" />
+                <RadioButton
+                    Classes="tool"
+                    Command="{Binding SelectToolCommand}"
+                    CommandParameter="{x:Static tools:ToolKind.Circle}"
+                    Content="Circle"
+                    GroupName="DrawingTool"
+                    ToolTip.Tip="원 (C)" />
+                <RadioButton
+                    Classes="tool"
+                    Command="{Binding SelectToolCommand}"
+                    CommandParameter="{x:Static tools:ToolKind.Polyline}"
+                    Content="Polyline"
+                    GroupName="DrawingTool"
+                    ToolTip.Tip="폴리라인 (P)" />
+                <RadioButton
+                    Classes="tool"
+                    Command="{Binding SelectToolCommand}"
+                    CommandParameter="{x:Static tools:ToolKind.Pan}"
+                    Content="Pan"
+                    GroupName="DrawingTool"
+                    ToolTip.Tip="화면 이동 (H)" />
 
                 <!--  구분선  -->
                 <Border
@@ -110,10 +123,11 @@
                     Margin="6,4"
                     Width="1" />
 
-                <ToggleButton Classes="option" 
-                              Content="Snap" 
-                              IsChecked="{Binding SnapEnabled}"
-                              ToolTip.Tip="스냅 켜기/끄기 (F3)"/>
+                <ToggleButton
+                    Classes="option"
+                    Content="Snap"
+                    IsChecked="{Binding SnapEnabled}"
+                    ToolTip.Tip="스냅 켜기/끄기 (F3)" />
 
             </StackPanel>
         </Border>

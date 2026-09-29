@@ -18,8 +18,4 @@
       <ProjectReference Include="..\KoDrawing.Core\KoDrawing.Core.csproj" />
     </ItemGroup>
     
-    <ItemGroup>
-      <Folder Include="HitTesting\" />
-    </ItemGroup>
-    
 </Project>

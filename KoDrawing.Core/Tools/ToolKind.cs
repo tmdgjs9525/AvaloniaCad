@@ -1,4 +1,4 @@
-﻿namespace AvaloniaCad.Editor.Tools;
+﻿namespace KoDrawing.Core.Tools;
 
 public enum ToolKind
 {

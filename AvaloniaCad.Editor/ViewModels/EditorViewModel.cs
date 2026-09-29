@@ -1,9 +1,9 @@
 ﻿using AvaloniaCad.Core;
-using AvaloniaCad.Editor.Tools;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using KoDrawing.Core;
 using KoDrawing.Core.Entities;
+using KoDrawing.Core.Tools;
 
 namespace AvaloniaCad.Editor.ViewModels;
 
@@ -14,8 +14,6 @@ public partial class EditorViewModel : ViewModelBase
     [ObservableProperty] private CadDocument _cadDocument = new();
 
     [ObservableProperty] private Entity? _selectedEntity;
-    
-    
     
     public EditorViewModel()
     {
