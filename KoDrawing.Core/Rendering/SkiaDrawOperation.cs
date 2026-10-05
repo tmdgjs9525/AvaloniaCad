@@ -2,13 +2,11 @@
 using Avalonia;
 using Avalonia.Media;
 using Avalonia.Rendering.SceneGraph;
-using Avalonia.Skia;
-using KoDrawing.Core;
 using KoDrawing.Core.Entities;
 using KoDrawing.Core.HitTesting;
 using SkiaSharp;
 
-namespace AvaloniaCad.Editor.Rendering;
+namespace KoDrawing.Core.Rendering;
 
 public sealed class SkiaDrawOperation : ICustomDrawOperation
 {

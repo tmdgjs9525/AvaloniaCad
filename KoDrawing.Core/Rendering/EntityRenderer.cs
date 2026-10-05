@@ -1,9 +1,9 @@
-﻿using KoDrawing.Core;
+﻿using System.Diagnostics;
 using KoDrawing.Core.Entities;
 using KoDrawing.Core.HitTesting;
 using SkiaSharp;
 
-namespace AvaloniaCad.Editor.Rendering;
+namespace KoDrawing.Core.Rendering;
 
 internal static class EntityRenderer
 {
@@ -75,7 +75,7 @@ internal static class EntityRenderer
             }
             catch (NotSupportedException ex)
             {
-                System.Diagnostics.Debug.WriteLine(ex.Message);
+                Debug.WriteLine(ex.Message);
             }
         }
     }

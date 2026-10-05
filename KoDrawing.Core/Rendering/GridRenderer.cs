@@ -1,10 +1,9 @@
 ﻿using System.Numerics;
-using KoDrawing.Core;
 using SkiaSharp;
 
-namespace AvaloniaCad.Editor.Rendering;
+namespace KoDrawing.Core.Rendering;
 
-internal static class GridRenderer
+public static class GridRenderer
 {
     private const float MinPixelSpacing = 12f;
     private const int MajorEvery = 10;
