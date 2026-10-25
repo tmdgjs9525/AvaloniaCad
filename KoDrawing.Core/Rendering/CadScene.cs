@@ -1,14 +1,11 @@
 ﻿using System.Numerics;
-using Avalonia;
-using Avalonia.Media;
-using Avalonia.Rendering.SceneGraph;
 using KoDrawing.Core.Entities;
 using KoDrawing.Core.HitTesting;
 using SkiaSharp;
 
 namespace KoDrawing.Core.Rendering;
 
-public sealed class SkiaDrawOperation : ICustomDrawOperation
+public sealed class CadScene
 {
     private readonly ViewportTransform _viewport;
     private readonly IReadOnlyList<Entity> _entities;
@@ -16,36 +13,22 @@ public sealed class SkiaDrawOperation : ICustomDrawOperation
     private readonly IReadOnlyList<Grip> _grips;
     private readonly Entity? _selectedEntity;
 
-    public Rect Bounds { get; }
-
-    public SkiaDrawOperation(
-        Rect bounds,
+    public CadScene(
         ViewportTransform viewport,
         IReadOnlyList<Entity> entities,
         IReadOnlyList<Entity> preview,
         IReadOnlyList<Grip> grips,
         Entity? selectedEntity = null)
     {
-        Bounds = bounds;
         _viewport = viewport;
         _entities = entities;
         _preview = preview;
         _grips = grips;
         _selectedEntity = selectedEntity;
     }
-    
-    public void Render(ImmediateDrawingContext context)
+
+    public void Render(SKCanvas canvas, float w, float h)
     {
-        var leaseFeature = context.TryGetFeature<ISkiaSharpApiLeaseFeature>();
-        if (leaseFeature is null)
-            return;
-
-        using var lease = leaseFeature.Lease();
-        var canvas = lease.SkCanvas;
-
-        var w = (float)Bounds.Width;
-        var h = (float)Bounds.Height;
-
         canvas.Save();
         try
         {
@@ -56,24 +39,11 @@ public sealed class SkiaDrawOperation : ICustomDrawOperation
             EntityRenderer.Draw(canvas, _viewport, _entities);
             EntityRenderer.DrawPreview(canvas, _viewport, _preview);
             EntityRenderer.DrawGrips(canvas, _viewport, _grips);
-            
+
             if (_selectedEntity is not null)
                 EntityRenderer.DrawHighlight(canvas, _viewport, _selectedEntity);
-            // 월드 원점 축 (X: 빨강, Y: 초록)
-            var origin = _viewport.WorldToScreen(Vector2.Zero);
 
-            using var axisPaint = new SKPaint
-            {
-                Style = SKPaintStyle.Stroke,
-                StrokeWidth = 1,
-                IsAntialias = true
-            };
-
-            axisPaint.Color = SKColors.IndianRed;
-            canvas.DrawLine(0, origin.Y, w, origin.Y, axisPaint);
-
-            axisPaint.Color = SKColors.SeaGreen;
-            canvas.DrawLine(origin.X, 0, origin.X, h, axisPaint);
+            DrawAxes(canvas, w, h);
         }
         finally
         {
@@ -81,17 +51,21 @@ public sealed class SkiaDrawOperation : ICustomDrawOperation
         }
     }
 
-    public bool HitTest(Point p)
+    private void DrawAxes(SKCanvas canvas, float w, float h)
     {
-        return Bounds.Contains(p);
-    }
+        var origin = _viewport.WorldToScreen(Vector2.Zero);
 
-    public bool Equals(ICustomDrawOperation? other)
-    {
-        return false;
-    }
+        using var axisPaint = new SKPaint
+        {
+            Style = SKPaintStyle.Stroke,
+            StrokeWidth = 1,
+            IsAntialias = true
+        };
 
-    public void Dispose()
-    {
+        axisPaint.Color = SKColors.IndianRed;
+        canvas.DrawLine(0, origin.Y, w, origin.Y, axisPaint);
+
+        axisPaint.Color = SKColors.SeaGreen;
+        canvas.DrawLine(origin.X, 0, origin.X, h, axisPaint);
     }
 }

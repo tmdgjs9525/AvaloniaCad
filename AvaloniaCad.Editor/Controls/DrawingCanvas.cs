@@ -4,6 +4,7 @@ using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Media;
+using AvaloniaCad.Editor.Rendering;
 using KoDrawing.Core;
 using KoDrawing.Core.Entities;
 using KoDrawing.Core.HitTesting;
@@ -101,8 +102,10 @@ public class DrawingCanvas : Control
         var preview = _tool.Preview ?? Array.Empty<Entity>();
         var grips = _tool is SelectTool select ? select.CurrentGrips : Array.Empty<Grip>();
         
-        context.Custom(new SkiaDrawOperation(
-            localBounds, Viewport.Clone(), entities.ToArray(), preview, grips, SelectedEntity));
+        var scene = new CadScene(
+            Viewport.Clone(), entities.ToArray(), preview, grips, SelectedEntity);
+
+        context.Custom(new SkiaDrawOperation(localBounds, scene));
     }
 
     // ───────── 입력 ─────────
