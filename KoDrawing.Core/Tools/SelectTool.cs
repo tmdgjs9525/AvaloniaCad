@@ -11,6 +11,12 @@ public sealed class SelectTool : ITool
     /// <summary>그립을 잡고 끄는 중인지 여부 (드래그 중에는 스냅 좌표를 받아야 함)</summary>
     public bool IsDraggingGrip => _draggingGrip is not null;
 
+    /// <summary>마우스가 올라가 있는 도형 (hover 강조용)</summary>
+    public Entity? HoveredEntity { get; private set; }
+
+    /// <summary>마우스가 올라가 있거나 끌고 있는 그립의 위치</summary>
+    public Vector2? HoveredGripPosition { get; private set; }
+
     private Grip? _draggingGrip;
     private IReadOnlyList<Grip> _currentGrips = Array.Empty<Grip>();
     private Entity? _selected;
@@ -34,34 +40,14 @@ public sealed class SelectTool : ITool
         var tolerance = _pixelToleranceInWorld();
 
         // 1) 이미 선택된 도형이 있으면, 그립부터 먼저 검사 (몸통보다 우선)
-        foreach (var grip in _currentGrips)
+        if (FindGrip(world, tolerance) is { } grip)
         {
-            if (Vector2.Distance(grip.Position, world) <= tolerance)
-            {
-                _draggingGrip = grip;
-                return;   // 그립을 잡았으니 몸통 검사는 안 함
-            }
+            _draggingGrip = grip;
+            return;   // 그립을 잡았으니 몸통 검사는 안 함
         }
 
-        // 2) 그립에 안 맞았으면 기존처럼 몸통 검사
-        var document = _getDocument();
-        if (document is null)
-        {
-            Select(null);
-            return;
-        }
-
-        for (var i = document.Entities.Count - 1; i >= 0; i--)
-        {
-            var entity = document.Entities[i];
-            if (EntityHitTest.HitTest(entity, world, tolerance))
-            {
-                Select(entity);
-                return;
-            }
-        }
-
-        Select(null);   // 빈 곳 클릭 → 선택 해제
+        // 2) 그립에 안 맞았으면 몸통 검사 (빈 곳이면 null → 선택 해제)
+        Select(FindEntity(world, tolerance));
     }
 
     public void OnPointerMoved(Vector2 world)
@@ -70,7 +56,53 @@ public sealed class SelectTool : ITool
         {
             _draggingGrip.MoveTo(world);
             RebuildGrips();   // 도형이 바뀌었으니 그립 위치도 다시 계산
+
+            HoveredEntity = null;
+            HoveredGripPosition = _draggingGrip.Position;
+            return;
         }
+
+        // 드래그 중이 아니면 마우스 아래 그립/도형을 찾아 hover 상태로 기록
+        var tolerance = _pixelToleranceInWorld();
+        var grip = FindGrip(world, tolerance);
+
+        HoveredGripPosition = grip?.Position;
+        HoveredEntity = grip is null ? FindEntity(world, tolerance) : null;
+    }
+
+    /// <summary>포인터가 캔버스를 벗어났을 때 hover 표시를 지운다</summary>
+    public void ClearHover()
+    {
+        HoveredEntity = null;
+        HoveredGripPosition = null;
+    }
+
+    private Grip? FindGrip(Vector2 world, float tolerance)
+    {
+        foreach (var grip in _currentGrips)
+        {
+            if (Vector2.Distance(grip.Position, world) <= tolerance)
+                return grip;
+        }
+
+        return null;
+    }
+
+    // 나중에 그린 도형(위에 있는 도형)부터 검사. 숨김/잠금 레이어의 도형은 건너뛴다.
+    private Entity? FindEntity(Vector2 world, float tolerance)
+    {
+        var document = _getDocument();
+        if (document is null)
+            return null;
+
+        for (var i = document.Entities.Count - 1; i >= 0; i--)
+        {
+            var entity = document.Entities[i];
+            if (document.IsEntityEditable(entity) && EntityHitTest.HitTest(entity, world, tolerance))
+                return entity;
+        }
+
+        return null;
     }
 
     public void OnPointerReleased(Vector2 world) => _draggingGrip = null;

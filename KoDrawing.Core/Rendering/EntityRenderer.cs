@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Numerics;
 using KoDrawing.Core.Entities;
 using KoDrawing.Core.HitTesting;
 using SkiaSharp;
@@ -33,6 +34,19 @@ internal static class EntityRenderer
         DrawOne(canvas, viewport, entity, paint);
     }
 
+    public static void DrawHover(SKCanvas canvas, ViewportTransform viewport, Entity entity)
+    {
+        using var paint = new SKPaint
+        {
+            Color = SKColors.DodgerBlue.WithAlpha(150),
+            Style = SKPaintStyle.Stroke,
+            StrokeWidth = 3f,
+            IsAntialias = true
+        };
+
+        DrawOne(canvas, viewport, entity, paint);
+    }
+
     public static void DrawPreview(SKCanvas canvas, ViewportTransform viewport, IReadOnlyList<Entity> entities)
     {
         if (entities.Count == 0)
@@ -51,16 +65,21 @@ internal static class EntityRenderer
         DrawAll(canvas, viewport, entities, paint);
     }
 
-    public static void DrawGrips(SKCanvas canvas, ViewportTransform viewport, IReadOnlyList<Grip> grips)
+    /// <summary>그립을 그린다. hoveredPosition과 같은 그립은 크게 채워서 강조.</summary>
+    public static void DrawGrips(SKCanvas canvas, ViewportTransform viewport, IReadOnlyList<Grip> grips, Vector2? hoveredPosition = null)
     {
         using var fill = new SKPaint { Color = SKColors.White, Style = SKPaintStyle.Fill, IsAntialias = true };
+        using var hotFill = new SKPaint { Color = SKColors.OrangeRed, Style = SKPaintStyle.Fill, IsAntialias = true };
         using var border = new SKPaint { Color = SKColors.OrangeRed, Style = SKPaintStyle.Stroke, StrokeWidth = 1.5f, IsAntialias = true };
 
         foreach (var grip in grips)
         {
+            var isHot = hoveredPosition is { } hp && hp == grip.Position;
+            var half = isHot ? 5f : 4f;
+
             var p = viewport.WorldToScreen(grip.Position);
-            var rect = new SKRect(p.X - 4, p.Y - 4, p.X + 4, p.Y + 4);
-            canvas.DrawRect(rect, fill);
+            var rect = new SKRect(p.X - half, p.Y - half, p.X + half, p.Y + half);
+            canvas.DrawRect(rect, isHot ? hotFill : fill);
             canvas.DrawRect(rect, border);
         }
     }
