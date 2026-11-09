@@ -23,6 +23,7 @@ public class DrawingCanvas : Control
     {
         DocumentProperty.Changed.AddClassHandler<DrawingCanvas>((c, e) => c.OnDocumentChanged(e));
         ToolKindProperty.Changed.AddClassHandler<DrawingCanvas>((c, _) => c.RebuildTool()); 
+        SelectedEntityProperty.Changed.AddClassHandler<DrawingCanvas>((c, e) => c.OnSelectedEntityChanged(e));
     }
 
     // 상태 표시줄 바인딩용. Vector2의 X/Y는 필드라서 Avalonia 바인딩이 안 되므로 Point 사용.
@@ -86,12 +87,17 @@ public class DrawingCanvas : Control
 
     private bool _isPanning;
     private Point _lastPointer;
+    private Point _lastCursorPos;   // 포인터 캡처를 잃었을 때 드래그를 마무리할 위치
 
     public DrawingCanvas()
     {
         ClipToBounds = true;
         Focusable = true;          // Esc 키를 받으려면 필요
         SizeChanged += OnSizeChanged;
+
+        // ToolKind 기본값(Select)과 바인딩 값이 같으면 Changed가 발생하지 않으므로
+        // 생성 시점에 한 번 직접 도구를 만들어 둔다.
+        RebuildTool();
     }
 
     public override void Render(DrawingContext context)
@@ -115,9 +121,11 @@ public class DrawingCanvas : Control
         base.OnPointerPressed(e);
 
         var point = e.GetCurrentPoint(this);
+        Focus();   // 어떤 버튼이든 캔버스를 누르면 포커스를 가져와 Esc 등을 받는다
 
-        // 휠 클릭 드래그 = Pan
-        if (point.Properties.IsMiddleButtonPressed)
+        // 휠 클릭 드래그 = Pan, Pan 도구일 때는 왼쪽 드래그도 Pan
+        if (point.Properties.IsMiddleButtonPressed
+            || (point.Properties.IsLeftButtonPressed && ToolKind == ToolKind.Pan))
         {
             _isPanning = true;
             _lastPointer = point.Position;
@@ -127,7 +135,6 @@ public class DrawingCanvas : Control
         }
         else if (point.Properties.IsLeftButtonPressed)
         {
-            Focus();
             _tool.OnPointerPressed(WorldPositionFor(point.Position)); 
             InvalidateVisual();
             e.Handled = true;
@@ -149,6 +156,7 @@ public class DrawingCanvas : Control
         base.OnPointerMoved(e);
 
         var pos = e.GetPosition(this);
+        _lastCursorPos = pos;
 
         if (_isPanning)
         {
@@ -179,25 +187,28 @@ public class DrawingCanvas : Control
     {
         base.OnPointerReleased(e);
 
-        if (_isPanning && e.InitialPressMouseButton == MouseButton.Middle)
+        if (_isPanning)
         {
             e.Pointer.Capture(null);
             EndPan();
         }
-        else
+        else if (e.InitialPressMouseButton == MouseButton.Left)
         {
-            _tool.OnPointerReleased(ScreenToSnappedWorld(e.GetPosition(this)));
+            // 왼쪽 버튼을 놓았을 때만 도구에 전달 (우클릭/휠클릭 해제는 무시)
+            _tool.OnPointerReleased(WorldPositionFor(e.GetPosition(this)));
             InvalidateVisual();
         }
 
         e.Handled = true;
     }
 
-    // 창 밖에서 놓거나 포커스를 잃는 경우에도 Pan 상태가 남지 않게 한다
+    // 창 밖에서 놓거나 포커스를 잃는 경우에도 Pan/그립 드래그 상태가 남지 않게 한다
     protected override void OnPointerCaptureLost(PointerCaptureLostEventArgs e)
     {
         base.OnPointerCaptureLost(e);
         EndPan();
+        _tool.OnPointerReleased(WorldPositionFor(_lastCursorPos));
+        InvalidateVisual();
     }
 
     protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
@@ -226,22 +237,39 @@ public class DrawingCanvas : Control
         if (e.NewValue is CadDocument newDoc)
             newDoc.Changed += InvalidateVisual;
 
+        // 문서가 바뀌면 그리던 도형과 선택은 의미가 없으므로 정리
+        _tool.Cancel();
+        SelectedEntity = null;
+
+        InvalidateVisual();
+    }
+
+    // ViewModel 쪽에서 선택이 바뀐 경우(예: 삭제 후 null) SelectTool의 그립도 맞춰 준다
+    private void OnSelectedEntityChanged(AvaloniaPropertyChangedEventArgs e)
+    {
+        if (_tool is SelectTool selectTool)
+            selectTool.SetSelection(e.NewValue as Entity);
+
         InvalidateVisual();
     }
     
     private void RebuildTool()
     {
+        // 이전 도구의 작업(그리던 도형, 선택)을 정리하고 바꾼다
+        _tool.Cancel();
+        SelectedEntity = null;
+
         _tool = ToolKind switch
         {
             ToolKind.Select => new SelectTool(
-                Document ?? new CadDocument(),
+                () => Document,               // 항상 현재 문서를 보도록 함수로 전달
                 entity => SelectedEntity = entity,
-                () => 10f / Viewport.Zoom),   // 화면 5px를 현재 줌 기준 mm로 환산
+                () => 10f / Viewport.Zoom),   // 화면 10px를 현재 줌 기준 mm로 환산
             ToolKind.Line => new LineTool(entity => Document?.Add(entity)),
             ToolKind.Rectangle => new RectangleTool(entity => Document?.Add(entity)),
             ToolKind.Circle => new CircleTool(entity => Document?.Add(entity)),
             ToolKind.Polyline => new PolylineTool(entity => Document?.Add(entity)),
-            _ => new NullTool(),
+            _ => new NullTool(),   // Pan은 OnPointerPressed에서 직접 처리
         };
 
         InvalidateVisual();
@@ -253,9 +281,10 @@ public class DrawingCanvas : Control
         Cursor = null;
     }
 
+    // 상태 표시줄에는 실제로 찍힐 좌표(스냅 적용 후)를 보여 준다
     private void UpdateCursorWorld(Point screenPos)
     {
-        var world = Viewport.ScreenToWorld(ToVector2(screenPos));
+        var world = WorldPositionFor(screenPos);
         CursorWorld = new Point(world.X, world.Y);
     }
 
@@ -285,8 +314,12 @@ public class DrawingCanvas : Control
     
     private Vector2 WorldPositionFor(Point screenPos)
     {
-        // Select 도구는 실제 클릭 위치로 판정해야 하므로 스냅을 적용하지 않음
-        return ToolKind == ToolKind.Select
+        // Select 도구의 클릭 판정은 실제 위치로 해야 하므로 스냅을 적용하지 않는다.
+        // 단, 그립을 잡고 끄는 중에는 정확한 좌표에 놓이도록 스냅을 적용한다.
+        var useRawPosition = (ToolKind is ToolKind.Select or ToolKind.Pan)
+                             && _tool is not SelectTool { IsDraggingGrip: true };
+
+        return useRawPosition
             ? Viewport.ScreenToWorld(ToVector2(screenPos))
             : ScreenToSnappedWorld(screenPos);
     }

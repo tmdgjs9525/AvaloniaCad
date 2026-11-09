@@ -12,7 +12,9 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <UserControl.Styles>
         <!--  RadioButton을 토글 버튼 모양으로 표시 (같은 GroupName 안에서 하나만 선택됨)  -->
+        <!--  툴바 버튼이 포커스를 가져가면 캔버스가 Esc/F3을 못 받으므로 포커스를 받지 않게 함  -->
         <Style Selector="RadioButton.tool">
+            <Setter Property="Focusable" Value="False" />
             <Setter Property="MinWidth" Value="64" />
             <Setter Property="Height" Value="32" />
             <Setter Property="HorizontalContentAlignment" Value="Center" />
@@ -20,6 +22,7 @@
         </Style>
 
         <Style Selector="ToggleButton.option">
+            <Setter Property="Focusable" Value="False" />
             <Setter Property="MinWidth" Value="64" />
             <Setter Property="Height" Value="32" />
             <Setter Property="HorizontalContentAlignment" Value="Center" />
@@ -76,15 +79,16 @@
                     Classes="tool"
                     Command="{Binding SelectToolCommand}"
                     CommandParameter="{x:Static tools:ToolKind.Select}"
+                    IsChecked="{Binding CurrentToolKind, Mode=OneWay, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static tools:ToolKind.Select}}"
                     Content="Select"
                     GroupName="DrawingTool"
                     HotKey="V"
-                    IsChecked="True"
                     ToolTip.Tip="선택 (V)" />
                 <RadioButton
                     Classes="tool"
                     Command="{Binding SelectToolCommand}"
                     CommandParameter="{x:Static tools:ToolKind.Line}"
+                    IsChecked="{Binding CurrentToolKind, Mode=OneWay, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static tools:ToolKind.Line}}"
                     Content="Line"
                     GroupName="DrawingTool"
                     HotKey="L"
@@ -93,6 +97,7 @@
                     Classes="tool"
                     Command="{Binding SelectToolCommand}"
                     CommandParameter="{x:Static tools:ToolKind.Rectangle}"
+                    IsChecked="{Binding CurrentToolKind, Mode=OneWay, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static tools:ToolKind.Rectangle}}"
                     Content="Rect"
                     GroupName="DrawingTool"
                     HotKey="R"
@@ -101,6 +106,7 @@
                     Classes="tool"
                     Command="{Binding SelectToolCommand}"
                     CommandParameter="{x:Static tools:ToolKind.Circle}"
+                    IsChecked="{Binding CurrentToolKind, Mode=OneWay, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static tools:ToolKind.Circle}}"
                     Content="Circle"
                     GroupName="DrawingTool"
                     HotKey="C"
@@ -109,6 +115,7 @@
                     Classes="tool"
                     Command="{Binding SelectToolCommand}"
                     CommandParameter="{x:Static tools:ToolKind.Polyline}"
+                    IsChecked="{Binding CurrentToolKind, Mode=OneWay, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static tools:ToolKind.Polyline}}"
                     Content="Polyline"
                     GroupName="DrawingTool"
                     HotKey="P"
@@ -117,6 +124,7 @@
                     Classes="tool"
                     Command="{Binding SelectToolCommand}"
                     CommandParameter="{x:Static tools:ToolKind.Pan}"
+                    IsChecked="{Binding CurrentToolKind, Mode=OneWay, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static tools:ToolKind.Pan}}"
                     Content="Pan"
                     GroupName="DrawingTool"
                     HotKey="H"

@@ -25,4 +25,11 @@ public partial class EditorViewModel : ViewModelBase
     {
         CurrentToolKind = kind;
     }
+
+    /// <summary>F3: 스냅 켜기/끄기</summary>
+    [RelayCommand]
+    private void ToggleSnap()
+    {
+        SnapEnabled = !SnapEnabled;
+    }
 }

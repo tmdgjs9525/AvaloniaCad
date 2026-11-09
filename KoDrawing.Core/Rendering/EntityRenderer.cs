@@ -133,11 +133,20 @@ internal static class EntityRenderer
         if (polyline.Points.Count < 2)
             return;
 
-        for (var i = 0; i < polyline.Points.Count - 1; i++)
+        // 하나의 경로로 그려야 꺾이는 부분이 자연스럽게 이어지고 점선 패턴도 끊기지 않는다
+        // SkiaSharp 4부터 SKPath는 불변 객체라서 SKPathBuilder로 만든 뒤 Detach()로 꺼낸다
+        using var builder = new SKPathBuilder();
+
+        var first = viewport.WorldToScreen(polyline.Points[0]);
+        builder.MoveTo(first.X, first.Y);
+
+        for (var i = 1; i < polyline.Points.Count; i++)
         {
-            var a = viewport.WorldToScreen(polyline.Points[i]);
-            var b = viewport.WorldToScreen(polyline.Points[i + 1]);
-            canvas.DrawLine(a.X, a.Y, b.X, b.Y, paint);
+            var p = viewport.WorldToScreen(polyline.Points[i]);
+            builder.LineTo(p.X, p.Y);
         }
+
+        using var path = builder.Detach();
+        canvas.DrawPath(path, paint);
     }
 }

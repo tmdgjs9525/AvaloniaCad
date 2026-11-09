@@ -5,6 +5,8 @@ namespace KoDrawing.Core.Tools;
 
 public sealed class LineTool : ITool
 {
+    private const float MinLength = 1e-4f;      // 이보다 짧은 선은 만들지 않음 (mm)
+
     private readonly Action<Entity> _commit;   // 완성된 도형을 문서에 넣어주는 함수
     private Vector2? _start;
     private Vector2 _end;
@@ -28,6 +30,9 @@ public sealed class LineTool : ITool
         }
         else
         {
+            if (Vector2.Distance(_start.Value, world) < MinLength)
+                return;   // 시작점과 같은 곳을 다시 찍으면 무시
+
             _commit(new LineEntity { Start = _start.Value, End = world });
             _start = null;
         }

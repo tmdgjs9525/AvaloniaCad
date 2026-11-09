@@ -5,6 +5,8 @@ namespace KoDrawing.Core.Tools;
 
 public sealed class RectangleTool : ITool
 {
+    private const float MinSize = 1e-4f;   // 폭/높이가 이보다 작으면 만들지 않음 (mm)
+
     private readonly Action<Entity> _commit;
     private Vector2? _start;
     private Vector2 _end;
@@ -28,6 +30,10 @@ public sealed class RectangleTool : ITool
         }
         else
         {
+            var start = _start.Value;
+            if (MathF.Abs(world.X - start.X) < MinSize || MathF.Abs(world.Y - start.Y) < MinSize)
+                return;   // 선처럼 납작한 사각형은 무시
+
             _commit(new RectangleEntity { Corner1 = _start.Value, Corner2 = world });
             _start = null;
         }

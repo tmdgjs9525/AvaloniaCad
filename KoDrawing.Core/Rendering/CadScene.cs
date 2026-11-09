@@ -35,15 +35,16 @@ public sealed class CadScene
             canvas.ClipRect(new SKRect(0, 0, w, h));
             canvas.Clear(SKColors.White);
 
+            // 아래 → 위 순서: 그리드, 축, 도형, 미리보기, 선택 강조, 그립(항상 맨 위)
             GridRenderer.Draw(canvas, _viewport, w, h);
+            DrawAxes(canvas, w, h);
             EntityRenderer.Draw(canvas, _viewport, _entities);
             EntityRenderer.DrawPreview(canvas, _viewport, _preview);
-            EntityRenderer.DrawGrips(canvas, _viewport, _grips);
 
             if (_selectedEntity is not null)
                 EntityRenderer.DrawHighlight(canvas, _viewport, _selectedEntity);
 
-            DrawAxes(canvas, w, h);
+            EntityRenderer.DrawGrips(canvas, _viewport, _grips);
         }
         finally
         {

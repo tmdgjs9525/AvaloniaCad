@@ -11,6 +11,10 @@
     xmlns:vm="clr-namespace:AvaloniaCad.Editor.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
+    <UserControl.KeyBindings>
+        <KeyBinding Command="{Binding ToggleSnapCommand}" Gesture="F3" />
+    </UserControl.KeyBindings>
+
     <Grid ColumnDefinitions="220,*,280" RowDefinitions="Auto,*,Auto">
 
         <controls:EditorToolbar
