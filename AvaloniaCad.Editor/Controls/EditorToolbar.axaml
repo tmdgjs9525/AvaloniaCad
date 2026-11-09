@@ -10,23 +10,70 @@
     xmlns:tools="clr-namespace:KoDrawing.Core.Tools;assembly=KoDrawing.Core"
     xmlns:vm="clr-namespace:AvaloniaCad.Editor.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <UserControl.Styles>
-        <!--  RadioButton을 토글 버튼 모양으로 표시 (같은 GroupName 안에서 하나만 선택됨)  -->
-        <!--  툴바 버튼이 포커스를 가져가면 캔버스가 Esc/F3을 못 받으므로 포커스를 받지 않게 함  -->
-        <Style Selector="RadioButton.tool">
-            <Setter Property="Focusable" Value="False" />
-            <Setter Property="MinWidth" Value="64" />
-            <Setter Property="Height" Value="32" />
-            <Setter Property="HorizontalContentAlignment" Value="Center" />
-            <Setter Property="VerticalContentAlignment" Value="Center" />
-        </Style>
+    <UserControl.Resources>
+        <!--  16x16 아이콘 (PathIcon이 크기에 맞춰 늘려 줌)  -->
+        <StreamGeometry x:Key="IconSelect">M4,1 L4,15 L7.5,11.5 L10,16 L12,15 L9.6,10.6 L14,10.6 Z</StreamGeometry>
+        <StreamGeometry x:Key="IconPan">M8,0 L11,3 L9,3 L9,7 L13,7 L13,5 L16,8 L13,11 L13,9 L9,9 L9,13 L11,13 L8,16 L5,13 L7,13 L7,9 L3,9 L3,11 L0,8 L3,5 L3,7 L7,7 L7,3 L5,3 Z</StreamGeometry>
+        <StreamGeometry x:Key="IconLine">M1,13.9 L13.9,1 L15,2.1 L2.1,15 Z</StreamGeometry>
+        <StreamGeometry x:Key="IconRect">M1,3 L15,3 L15,13 L1,13 Z M2.5,4.5 L2.5,11.5 L13.5,11.5 L13.5,4.5 Z</StreamGeometry>
+        <StreamGeometry x:Key="IconCircle">M1,8 A7,7 0 1 1 15,8 A7,7 0 1 1 1,8 Z M2.5,8 A5.5,5.5 0 1 0 13.5,8 A5.5,5.5 0 1 0 2.5,8 Z</StreamGeometry>
+        <StreamGeometry x:Key="IconPolyline">M0.3,12.7 L4.9,3.6 L9.9,9.8 L14.4,2.6 L15.6,3.4 L10.1,12.2 L5.1,6.4 L1.7,13.3 Z</StreamGeometry>
+        <StreamGeometry x:Key="IconSnap">M1,1 L4,1 L4,4 L1,4 Z M6.5,1 L9.5,1 L9.5,4 L6.5,4 Z M12,1 L15,1 L15,4 L12,4 Z M1,6.5 L4,6.5 L4,9.5 L1,9.5 Z M12,6.5 L15,6.5 L15,9.5 L12,9.5 Z M1,12 L4,12 L4,15 L1,15 Z M6.5,12 L9.5,12 L9.5,15 L6.5,15 Z M12,12 L15,12 L15,15 L12,15 Z M5.5,5.5 L10.5,5.5 L10.5,10.5 L5.5,10.5 Z</StreamGeometry>
 
-        <Style Selector="ToggleButton.option">
+        <!--
+            툴바 버튼 모양 (RadioButton/ToggleButton 공용).
+            기본 RadioButton은 동그라미가 보이므로 템플릿을 바꿔 버튼처럼 보이게 하고,
+            선택(checked) 상태는 강조색으로 채운다.
+            Focusable=False: 버튼이 포커스를 가져가면 캔버스가 Esc 등을 못 받음.
+        -->
+        <ControlTheme TargetType="ToggleButton" x:Key="ToolButtonTheme">
             <Setter Property="Focusable" Value="False" />
-            <Setter Property="MinWidth" Value="64" />
-            <Setter Property="Height" Value="32" />
-            <Setter Property="HorizontalContentAlignment" Value="Center" />
-            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}" />
+            <Setter Property="Padding" Value="8,4" />
+            <Setter Property="Height" Value="34" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Border
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        CornerRadius="4"
+                        Name="PART_Border"
+                        Padding="{TemplateBinding Padding}">
+                        <ContentPresenter
+                            Content="{TemplateBinding Content}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                            HorizontalAlignment="Center"
+                            Name="PART_ContentPresenter"
+                            VerticalAlignment="Center" />
+                    </Border>
+                </ControlTemplate>
+            </Setter>
+
+            <Style Selector="^:pointerover">
+                <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundBaseLowBrush}" />
+            </Style>
+            <Style Selector="^:checked">
+                <Setter Property="Background" Value="{DynamicResource SystemControlHighlightAccentBrush}" />
+                <Setter Property="Foreground" Value="White" />
+            </Style>
+        </ControlTheme>
+    </UserControl.Resources>
+
+    <UserControl.Styles>
+        <Style Selector="PathIcon">
+            <Setter Property="Width" Value="16" />
+            <Setter Property="Height" Value="16" />
+        </Style>
+        <!--  그룹 구분선  -->
+        <Style Selector="Border.separator">
+            <Setter Property="Width" Value="1" />
+            <Setter Property="Margin" Value="6,6" />
+            <Setter Property="Background" Value="{DynamicResource SystemControlForegroundBaseLowBrush}" />
         </Style>
     </UserControl.Styles>
 
@@ -67,80 +114,102 @@
             </MenuItem>
         </Menu>
 
-        <!--  도구 모음  -->
+        <!--  도구 모음: [선택/이동] | [그리기] | [옵션]  -->
+        <!--  단축키는 EditorView.OnKeyDown에서 처리 (TextBox 입력 중에는 무시)  -->
         <Border
             BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
             BorderThickness="0,1,0,1"
             Padding="6,4">
 
-            <StackPanel Orientation="Horizontal" Spacing="4">
+            <StackPanel Orientation="Horizontal" Spacing="2">
 
                 <RadioButton
-                    Classes="tool"
                     Command="{Binding SelectToolCommand}"
                     CommandParameter="{x:Static tools:ToolKind.Select}"
+                    GroupName="DrawingTool"
                     IsChecked="{Binding CurrentToolKind, Mode=OneWay, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static tools:ToolKind.Select}}"
-                    Content="Select"
-                    GroupName="DrawingTool"
-                    HotKey="V"
-                    ToolTip.Tip="선택 (V)" />
+                    Theme="{StaticResource ToolButtonTheme}"
+                    ToolTip.Tip="선택 (V)">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <PathIcon Data="{StaticResource IconSelect}" />
+                        <TextBlock Text="선택" VerticalAlignment="Center" />
+                    </StackPanel>
+                </RadioButton>
                 <RadioButton
-                    Classes="tool"
-                    Command="{Binding SelectToolCommand}"
-                    CommandParameter="{x:Static tools:ToolKind.Line}"
-                    IsChecked="{Binding CurrentToolKind, Mode=OneWay, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static tools:ToolKind.Line}}"
-                    Content="Line"
-                    GroupName="DrawingTool"
-                    HotKey="L"
-                    ToolTip.Tip="선 (L)" />
-                <RadioButton
-                    Classes="tool"
-                    Command="{Binding SelectToolCommand}"
-                    CommandParameter="{x:Static tools:ToolKind.Rectangle}"
-                    IsChecked="{Binding CurrentToolKind, Mode=OneWay, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static tools:ToolKind.Rectangle}}"
-                    Content="Rect"
-                    GroupName="DrawingTool"
-                    HotKey="R"
-                    ToolTip.Tip="사각형 (R)" />
-                <RadioButton
-                    Classes="tool"
-                    Command="{Binding SelectToolCommand}"
-                    CommandParameter="{x:Static tools:ToolKind.Circle}"
-                    IsChecked="{Binding CurrentToolKind, Mode=OneWay, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static tools:ToolKind.Circle}}"
-                    Content="Circle"
-                    GroupName="DrawingTool"
-                    HotKey="C"
-                    ToolTip.Tip="원 (C)" />
-                <RadioButton
-                    Classes="tool"
-                    Command="{Binding SelectToolCommand}"
-                    CommandParameter="{x:Static tools:ToolKind.Polyline}"
-                    IsChecked="{Binding CurrentToolKind, Mode=OneWay, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static tools:ToolKind.Polyline}}"
-                    Content="Polyline"
-                    GroupName="DrawingTool"
-                    HotKey="P"
-                    ToolTip.Tip="폴리라인 (P)" />
-                <RadioButton
-                    Classes="tool"
                     Command="{Binding SelectToolCommand}"
                     CommandParameter="{x:Static tools:ToolKind.Pan}"
-                    IsChecked="{Binding CurrentToolKind, Mode=OneWay, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static tools:ToolKind.Pan}}"
-                    Content="Pan"
                     GroupName="DrawingTool"
-                    HotKey="H"
-                    ToolTip.Tip="화면 이동 (H)" />
+                    IsChecked="{Binding CurrentToolKind, Mode=OneWay, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static tools:ToolKind.Pan}}"
+                    Theme="{StaticResource ToolButtonTheme}"
+                    ToolTip.Tip="화면 이동 (H) · 휠 클릭 드래그로도 가능">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <PathIcon Data="{StaticResource IconPan}" />
+                        <TextBlock Text="이동" VerticalAlignment="Center" />
+                    </StackPanel>
+                </RadioButton>
 
-                <!--  구분선  -->
-                <Border
-                    Background="{DynamicResource SystemControlForegroundBaseLowBrush}"
-                    Margin="6,4"
-                    Width="1" />
+                <Border Classes="separator" />
+
+                <RadioButton
+                    Command="{Binding SelectToolCommand}"
+                    CommandParameter="{x:Static tools:ToolKind.Line}"
+                    GroupName="DrawingTool"
+                    IsChecked="{Binding CurrentToolKind, Mode=OneWay, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static tools:ToolKind.Line}}"
+                    Theme="{StaticResource ToolButtonTheme}"
+                    ToolTip.Tip="선 (L)">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <PathIcon Data="{StaticResource IconLine}" />
+                        <TextBlock Text="선" VerticalAlignment="Center" />
+                    </StackPanel>
+                </RadioButton>
+                <RadioButton
+                    Command="{Binding SelectToolCommand}"
+                    CommandParameter="{x:Static tools:ToolKind.Rectangle}"
+                    GroupName="DrawingTool"
+                    IsChecked="{Binding CurrentToolKind, Mode=OneWay, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static tools:ToolKind.Rectangle}}"
+                    Theme="{StaticResource ToolButtonTheme}"
+                    ToolTip.Tip="사각형 (R)">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <PathIcon Data="{StaticResource IconRect}" />
+                        <TextBlock Text="사각형" VerticalAlignment="Center" />
+                    </StackPanel>
+                </RadioButton>
+                <RadioButton
+                    Command="{Binding SelectToolCommand}"
+                    CommandParameter="{x:Static tools:ToolKind.Circle}"
+                    GroupName="DrawingTool"
+                    IsChecked="{Binding CurrentToolKind, Mode=OneWay, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static tools:ToolKind.Circle}}"
+                    Theme="{StaticResource ToolButtonTheme}"
+                    ToolTip.Tip="원 (C)">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <PathIcon Data="{StaticResource IconCircle}" />
+                        <TextBlock Text="원" VerticalAlignment="Center" />
+                    </StackPanel>
+                </RadioButton>
+                <RadioButton
+                    Command="{Binding SelectToolCommand}"
+                    CommandParameter="{x:Static tools:ToolKind.Polyline}"
+                    GroupName="DrawingTool"
+                    IsChecked="{Binding CurrentToolKind, Mode=OneWay, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static tools:ToolKind.Polyline}}"
+                    Theme="{StaticResource ToolButtonTheme}"
+                    ToolTip.Tip="폴리라인 (P) · 우클릭으로 완료">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <PathIcon Data="{StaticResource IconPolyline}" />
+                        <TextBlock Text="폴리라인" VerticalAlignment="Center" />
+                    </StackPanel>
+                </RadioButton>
+
+                <Border Classes="separator" />
 
                 <ToggleButton
-                    Classes="option"
-                    Content="Snap"
                     IsChecked="{Binding SnapEnabled}"
-                    ToolTip.Tip="스냅 켜기/끄기 (F3)" />
+                    Theme="{StaticResource ToolButtonTheme}"
+                    ToolTip.Tip="그리드 스냅 켜기/끄기 (F3)">
+                    <StackPanel Orientation="Horizontal" Spacing="6">
+                        <PathIcon Data="{StaticResource IconSnap}" />
+                        <TextBlock Text="스냅" VerticalAlignment="Center" />
+                    </StackPanel>
+                </ToggleButton>
 
             </StackPanel>
         </Border>
