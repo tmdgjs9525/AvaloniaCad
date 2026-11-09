@@ -1,5 +1,7 @@
 # AvaloniaCad 기획안
 
+> 마지막 갱신: 2026-11-09 — 코드 현황 기준으로 4~7, 9, 12장 갱신
+
 ## 1. 프로젝트 개요
 
 **AvaloniaCad**는 Avalonia와 SkiaSharp로 만드는 크로스플랫폼 2D 정밀 도면 편집기다. 사용자는 격자와 스냅 기능을 이용해 선, 사각형, 원, 폴리라인을 그리고 편집하며, 문서를 저장하거나 이미지로 내보낼 수 있다.
@@ -46,96 +48,125 @@ DXF/SVG 내보내기와 3D Extrude 미리보기는 MVP 이후 확장 항목이�
 ## 4. 화면 구성
 
 ```text
-┌ Menu: File / Edit / View / Help ────────────────────────────────────────┐
-│ Toolbar: Select | Line | Rect | Circle | Polyline | Pan | Snap          │
+┌ Menu: File / Edit / View / Help  (항목만 있음, 명령 미연결) ─────────────┐
+│ Toolbar: [선택 | 이동] ‖ [선 | 사각형 | 원 | 폴리라인] ‖ [스냅]          │
 ├───────────────┬─────────────────────────────────────┬───────────────────┤
-│ Layers        │                                     │ Properties        │
-│ ───────────   │            Drawing Canvas           │ ───────────────   │
-│ ☑ Default     │       Grid / rulers / guides        │ Entity / Layer    │
-│ ☑ Annotation  │       entities / preview / select   │ Position / Size   │
-│ + Add layer   │                                     │ Stroke / Color    │
+│ 레이어   + −  │                                     │ 속성              │
+│ ───────────   │            DrawingCanvas            │ ───────────────   │
+│ ☑ Default 잠금│   Grid / 축 / 도형 / hover 강조      │ 종류 / 레이어     │
+│ ☑ Layer 1 잠금│   미리보기 / 선택 강조 / 그립        │ 좌표·크기 (편집)  │
+│ 이름: [     ] │   스냅 마커                          │ 삭제 (Del)        │
 ├───────────────┴─────────────────────────────────────┴───────────────────┤
-│ X: 120.00 mm   Y: 40.00 mm  |  Zoom: 100%  |  Snap: Endpoint           │
+│ X | Y | Zoom ‖ 도구: 선 | Snap: ON ‖ 선택: 원 (Default)     도구 사용법 │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
+- 좌측 220px 레이어 패널, 우측 280px 속성 패널, 하단 상태 표시줄
+- 단축키: V 선택, H 이동, L 선, R 사각형, C 원, P 폴리라인, F3 스냅, Del 삭제, Esc 취소/선택 해제
+  (EditorView.OnKeyDown에서 처리, TextBox 입력 중에는 무시)
+- 마우스: 휠 줌, 휠 클릭 드래그 Pan, 우클릭 폴리라인 완료/도구 취소
+
 ## 5. 기능 명세
 
-| 영역 | MVP 기능 | 완료 기준 |
-| --- | --- | --- |
-| Viewport | Pan, wheel zoom, Fit to content, Grid | 줌 기준점이 마우스 위치에 고정되고 도형 좌표는 변하지 않는다. |
-| Draw | Line, Rectangle, Circle, Polyline | 클릭/드래그 또는 연속 클릭으로 도형이 생성되며 작성 중 미리보기가 보인다. |
-| Select | 단일 선택, hit test, marquee는 후순위 | 클릭한 최상위 도형이 선택 강조 상태가 된다. |
-| Edit | Move, Copy, Delete | 선택 도형의 변경이 하나의 Undo 가능한 명령이 된다. |
-| Snap | Grid, Endpoint, Midpoint | 가장 가까운 유효 후보가 강조되고 정확한 좌표로 배치된다. |
-| Layers | 생성, 이름 변경, 표시/잠금 | 잠긴 레이어는 수정할 수 없고 숨긴 레이어는 렌더링하지 않는다. |
-| History | Undo, Redo | 도형 생성·삭제·이동·속성 변경을 순서대로 되돌리고 다시 적용한다. |
-| Files | New, Open, Save, Save As | 저장 후 다시 열어도 엔터티, 레이어, 스타일, 뷰 설정이 보존된다. |
-| Export | PNG | 현재 도면의 지정 영역이 해상도 선택에 따라 이미지로 생성된다. |
+상태: ✅ 완료 · 🟡 일부 · ⬜ 미착수
+
+| 영역 | MVP 기능 | 상태 | 현재 구현 / 남은 것 |
+| --- | --- | --- | --- |
+| Viewport | Pan, wheel zoom, Fit to content, Grid | 🟡 | Pan(휠 클릭, Pan 도구), 마우스 기준 줌, 줌 연동 그리드 완료 / Fit to Content 남음 |
+| Draw | Line, Rectangle, Circle, Polyline | ✅ | 클릭 방식 작성 + 점선 미리보기, 크기 0 도형 방지 |
+| Select | 단일 선택, hit test, marquee는 후순위 | 🟡 | 단일 선택, 선택 강조, hover 강조 / 박스(marquee)·다중 선택 남음 |
+| Edit | Move, Copy, Delete | 🟡 | 그립 편집, 속성 패널 수치 편집, Delete 완료 / 몸통 드래그 Move, Copy 남음 |
+| Snap | Grid, Endpoint, Midpoint | 🟡 | Grid 스냅 + 마커 완료 / Endpoint, Midpoint 남음 |
+| Layers | 생성, 이름 변경, 표시/잠금 | ✅ | 추가/삭제/이름 변경/표시/잠금, 현재 레이어, 도형 레이어 변경 |
+| Properties | 수치, 레이어, 색상, 선 두께 | 🟡 | 좌표·크기·레이어 편집 / 색상·선 두께(스타일 모델) 남음 |
+| History | Undo, Redo | ⬜ | Command 구조 미도입 (편집이 도형을 직접 변경) |
+| Files | New, Open, Save, Save As | ⬜ | 메뉴 항목만 있음 |
+| Export | PNG | ⬜ | 메뉴 항목만 있음 |
 
 ## 6. 기술 스택
 
-| 계층 | 선택 | 역할 |
-| --- | --- | --- |
-| UI | Avalonia | 창, 메뉴, 패널, 입력, 크로스플랫폼 배포 |
-| 렌더링 | SkiaSharp | 캔버스의 벡터 도형·텍스트·이미지 렌더링 |
-| Avalonia 연동 | `ICustomDrawOperation` | Avalonia 렌더 패스에서 SkiaSharp `SKCanvas` 접근 |
-| 상태/UI 구조 | CommunityToolkit.Mvvm | MVVM, 명령, 속성 변경 알림 |
-| 수학 | System.Numerics | `Vector2`, 행렬 및 좌표 계산 |
-| 저장 | System.Text.Json | 프로젝트 문서의 JSON 직렬화 |
-| 테스트 | xUnit | 좌표 변환, 스냅, 히트 테스트, 명령 이력 단위 테스트 |
+| 계층 | 선택 | 버전 | 역할 |
+| --- | --- | --- | --- |
+| 런타임 | .NET | net10.0 | 전 프로젝트 공통 |
+| UI | Avalonia (+ Themes.Fluent) | 12.1.4 | 창, 메뉴, 패널, 입력 |
+| 렌더링 | SkiaSharp | 4.156.0-preview | 캔버스 벡터 렌더링 (SKPath 대신 SKPathBuilder 사용) |
+| Avalonia 연동 | `ICustomDrawOperation` + `ISkiaSharpApiLeaseFeature` | | 렌더 패스에서 `SKCanvas` 접근 |
+| MVVM | CommunityToolkit.Mvvm | 8.4.2 | ObservableProperty, RelayCommand |
+| 화면 구성 | ViewManager (자체) | | DI 기반 내비게이션, 리전, 다이얼로그 |
+| 수학 | System.Numerics | | `Vector2` 좌표 계산 |
+| 저장 | System.Text.Json | | (예정) 문서 JSON 직렬화 |
+| 테스트 | xUnit v3 | | 좌표 변환 단위 테스트 |
 
-Avalonia 기본 컨트롤은 메뉴와 패널 UI에 사용한다. 캔버스만 SkiaSharp로 직접 그리며, 도형 모델과 기하 알고리즘은 UI/렌더러에 의존하지 않는 Core 프로젝트에 둔다.
+캔버스만 SkiaSharp로 직접 그리고, 도형 모델·도구·히트 테스트·렌더러는 UI와 분리된 `KoDrawing.Core`에 둔다.
 
 ## 7. 아키텍처
 
 ```text
-AvaloniaCad.App
-  ├─ Views / ViewModels / Commands
-  └─ CanvasControl
-       └─ SkiaRenderer (SkiaSharp)
-
-AvaloniaCad.Core
-  ├─ Document, Layer, Entity
-  ├─ Geometry: HitTest, Bounds, Snap
-  ├─ ViewportTransform
-  └─ Commands: Create, Move, Delete, UpdateProperty
-
-AvaloniaCad.Infrastructure
-  ├─ JsonDocumentSerializer
-  └─ PngExporter
-
-AvaloniaCad.Tests
-  └─ Core 단위 테스트
+AvaloniaCad.sln
+├─ AvaloniaCad              앱 진입점, MainWindow, DI 등록 (App.axaml.cs)
+├─ AvaloniaCad.Core         ViewModelBase, RegionNames (앱 공통)
+├─ AvaloniaCad.Editor       에디터 화면
+│  ├─ Views/EditorView                 레이아웃 + 단축키 처리
+│  ├─ Controls/DrawingCanvas           입력, 도구 생성(RebuildTool), 스냅, 커서
+│  ├─ Controls/EditorToolbar           도구 버튼(ToolButtonTheme), 메뉴
+│  ├─ Controls/LayersPanel, PropertiesPanel
+│  ├─ ViewModels/EditorViewModel       문서, 현재 도구, 선택, 레이어/속성 목록
+│  ├─ ViewModels/LayerItemViewModel, PropertyFieldViewModel
+│  └─ Rendering/SkiaDrawOperation      CadScene을 SKCanvas에 그림
+├─ KoDrawing.Core           UI 비의존 드로잉 코어
+│  ├─ CadDocument, Layer, ViewportTransform
+│  ├─ Entities/   Entity, Line/Rectangle/Circle/PolylineEntity
+│  ├─ Tools/      ITool, SelectTool, Line/Rectangle/Circle/PolylineTool, NullTool, ToolKind
+│  ├─ HitTesting/ EntityHitTest, EntityGrips, Grip
+│  └─ Rendering/  CadScene, EntityRenderer, GridRenderer
+├─ KoDrawing.Tests          xUnit v3 (ViewportTransformTests)
+└─ ViewManager              Avalonia.Container, Container.Core
 ```
 
-### 핵심 도메인 모델
+### 핵심 도메인 모델 (현재)
 
 ```text
 CadDocument
- ├─ Units
- ├─ Layers[]
  ├─ Entities[]
- └─ ViewSettings
+ ├─ Layers[]        기본 레이어 "Default", 마지막 레이어는 삭제 불가
+ ├─ CurrentLayer    새 도형이 들어갈 레이어
+ └─ Changed 이벤트  Add/Remove/레이어 변경, NotifyChanged()로 직접 알림
 
-CadEntity (abstract)
- ├─ Id, LayerId, Style
+Entity (abstract): Id, LayerId
  ├─ LineEntity(Start, End)
- ├─ RectangleEntity(Origin, Width, Height)
+ ├─ RectangleEntity(Corner1, Corner2)
  ├─ CircleEntity(Center, Radius)
- └─ PolylineEntity(Points[], IsClosed)
+ └─ PolylineEntity(Points[])
+
+Layer: Id, Name, IsVisible, IsLocked
 ```
 
-현재 `KoDrawing.Core`에서는 도메인 모델을 본격적으로 구현하기 전에 `ViewportTransform`을 먼저 구축한다.
+예정: Style(색상, 선 두께), Units, ViewSettings, PolylineEntity.IsClosed
 
+### 데이터 흐름
+
+- 입력: `DrawingCanvas` → 화면 좌표를 월드 좌표로 변환(필요 시 스냅) → `ITool`
+- 도형 생성: 도구가 commit 콜백으로 `CadDocument.Add` 호출
+- 선택: `SelectTool` ↔ `DrawingCanvas.SelectedEntity` ↔ `EditorViewModel.SelectedEntity` (양방향 동기화)
+- 렌더링: `DrawingCanvas.Render` → `CadScene` 스냅샷 생성(뷰포트 복제, 표시 레이어 도형 배열) → `SkiaDrawOperation`
+- 그리기 순서: 그리드 → 축 → 도형 → hover → 미리보기 → 선택 강조 → 그립 → 스냅 마커
 
 ### 설계 원칙
 
 - 엔터티 좌표는 항상 월드 좌표(mm)로 보관한다.
 - 화면 좌표 변환과 역변환은 `ViewportTransform` 한 곳에서 처리한다.
 - 화면 렌더링은 모델을 변경하지 않는다.
-- 사용자 변경은 `ICadCommand.Execute/Undo`로 표현해 이력을 보장한다.
+- 사용자 변경은 `ICadCommand.Execute/Undo`로 표현해 이력을 보장한다. ⬜ 미적용
 - 선택, 스냅, 도구 상태는 문서 데이터와 분리된 편집기 상태로 둔다.
+
+### 알려진 기술 부채
+
+- 그립 드래그, 속성 패널, 레이어 이동이 도형을 직접 수정함 → Undo/Redo 도입 시 Command로 전환
+- `CadScene` 스냅샷이 얕은 복사라 렌더 스레드와 UI 스레드가 같은 Entity 객체를 공유함
+- `KoDrawing.Core`가 쓰지 않는 Avalonia 패키지를 참조, SkiaSharp 프리뷰 버전 고정
+- 테스트가 `ViewportTransform`뿐. `EntityHitTest`/`EntityGrips`는 internal이라 `InternalsVisibleTo` 필요
+- 원 반지름 그립, 사각형 나머지 두 코너 그립 없음
+- 메뉴(File/Edit/View) 항목에 명령 미연결
 
 ## 8. 주요 알고리즘
 
@@ -152,7 +183,7 @@ CadEntity (abstract)
 - Rectangle: 네 변에 대한 선분 hit test
 - Polyline: 각 선분을 순회해 가장 가까운 항목을 선택
 
-### Snap 우선순위
+### Snap 우선순위 (현재는 3. Grid만 구현)
 
 1. Endpoint
 2. Midpoint
@@ -163,69 +194,50 @@ CadEntity (abstract)
 
 ## 9. 개발 마일스톤
 
-### 현재 진행 상황
+### M1. Canvas Foundation ✅
 
-```text
-KoDrawing
-├─ KoDrawing.Core        (.NET 10)  ← 생성 완료
-│  └─ ViewportTransform.cs           ← 구현 완료
-│
-└─ KoDrawing.Tests       (.NET 10)  ← 생성 완료
-   └─ ViewportTransformTests.cs      ← 실행 확인 완료
+- [x] `KoDrawing.Core`(net10.0), `KoDrawing.Tests`(xUnit v3) 구성
+- [x] `ViewportTransform` 구현 및 테스트
+- [x] Avalonia 레이아웃과 도구 선택 UI
+- [x] SkiaSharp 캔버스 연결 (`ICustomDrawOperation`)
+- [x] Pan, Zoom, World/Screen 변환
+- [x] Grid 및 상태 표시줄
+- [ ] Fit to Content → M4로 이동
 
-AvaloniaCad
-└─ 별도 솔루션에서 KoDrawing.Core를 사용하는 구조로 진행
-```
+### M2. Drawing & Rendering 🟡
 
-현재까지의 핵심 결정:
+- [x] 도메인 모델 (Entity, CadDocument)
+- [ ] 스타일 정의 (색상, 선 두께)
+- [x] Line, Rectangle, Circle 렌더링·생성
+- [x] Polyline 생성과 미리보기
+- [ ] JSON 저장 → M4 Open/Save와 함께 진행
 
-- `AvaloniaCad`는 실제 Avalonia 애플리케이션으로 유지한다.
-- `KoDrawing`은 별도의 재사용 가능한 Drawing 프로젝트로 유지한다.
-- `KoDrawing.Core`는 `AvaloniaCad`와 분리하고 `net10.0`을 사용한다.
-- `KoDrawing.Tests`는 xUnit v3 기반으로 구성한다.
-- 첫 번째 Core 기능은 월드 좌표와 화면 좌표를 변환하는 `ViewportTransform`으로 시작한다.
-- 다음 작업은 `ViewportTransform`의 테스트를 보강한 뒤 `AvaloniaCad`에서 `KoDrawing.Core`를 참조하고 Canvas/SkiaSharp를 연결하는 것이다.
+### M3. Editing Precision 🟡
 
-### M1. Canvas Foundation
+- [x] Hit test와 선택 강조, hover 강조
+- [x] 그립 편집 (스냅 적용)
+- [x] Delete
+- [ ] Move(몸통 드래그), Copy
+- [x] Grid Snap + 스냅 마커
+- [ ] Endpoint/Midpoint Snap
+- [x] 레이어 패널 (추가/삭제/이름/표시/잠금)
+- [x] 속성 패널 (좌표·크기·레이어 편집)
 
-- [ ] Avalonia 레이아웃과 도구 선택 UI
-- [ ] SkiaSharp 캔버스 연결
-- [x] `KoDrawing.Core` 프로젝트 생성
-- [x] `KoDrawing.Core` 대상 프레임워크를 `net10.0`으로 결정
-- [x] `ViewportTransform` 구현
-- [x] `KoDrawing.Tests` 프로젝트 생성
-- [x] xUnit v3 테스트 환경 구성
-- [x] `ViewportTransform` 테스트 실행 확인
-- [ ] Pan, Zoom, World/Screen 변환 완성
-- [ ] Grid 및 상태 표시줄
+### M4. Product Quality ⬜
 
-### M2. Drawing & Rendering
+- [ ] Command 기반 Undo/Redo
+- [ ] New/Open/Save/Save As
+- [ ] PNG Export
+- [ ] Fit to Content
+- [x] 단축키 (도구, F3, Del, Esc)
+- [ ] 메뉴 명령 연결, 오류 메시지
 
-- 도메인 모델 및 스타일 정의
-- Line, Rectangle, Circle 렌더링·생성
-- Polyline 생성과 미리보기
-- JSON 임시 저장
+### M5. Portfolio Polish ⬜
 
-### M3. Editing Precision
-
-- Hit test와 선택 강조
-- Move, Copy, Delete
-- Grid/Endpoint/Midpoint Snap
-- 레이어와 속성 패널
-
-### M4. Product Quality
-
-- Command 기반 Undo/Redo
-- Open/Save/Save As
-- PNG Export
-- 단축키와 오류 메시지
-
-### M5. Portfolio Polish
-
-- 기하 알고리즘 및 직렬화 단위 테스트
-- 성능 측정: 1,000개 이상 엔터티 Pan/Zoom
-- 데모 GIF와 스크린샷
-- README에 구조도, 기능표, 향후 계획 작성
+- [ ] 기하 알고리즘 및 직렬화 단위 테스트
+- [ ] 성능 측정: 1,000개 이상 엔터티 Pan/Zoom
+- [ ] 데모 GIF와 스크린샷
+- [ ] README에 구조도, 기능표, 향후 계획 작성
 
 ## 10. MVP 완료 기준
 
@@ -249,16 +261,12 @@ AvaloniaCad
 
 ## 12. 현재 작업 순서
 
-현재는 M1의 초기 단계다.
+M1 완료, M2/M3 대부분 완료. 다음 순서로 진행한다.
 
-1. `ViewportTransform` 좌표 변환 테스트 보강
-2. `AvaloniaCad`에서 `KoDrawing.Core` 참조
-3. Avalonia `CanvasControl` 생성
-4. SkiaSharp 렌더링 연결
-5. World 좌표 기반 Grid 렌더링
-6. 마우스 Screen → World 좌표 표시
-7. Pan 구현
-8. 마우스 위치 기준 Zoom 구현
-9. Fit to Content 구현
-
-이후 M2에서 Entity 모델과 Line/Rectangle/Circle/Polyline을 추가한다.
+1. **Undo/Redo** — `ICadCommand`(Execute/Undo) + 이력 스택 도입, 기존 편집(그리기, 삭제, 그립, 속성 입력, 레이어 이동)을 Command로 전환
+2. **Move / Copy** — 선택 도형 몸통 드래그 이동, 복제 (처음부터 Command로 구현)
+3. **Endpoint / Midpoint 스냅** — 8장 우선순위대로, 상태 표시줄에 활성 스냅 종류 표시
+4. **저장 / 열기** — JSON 직렬화(도형 + 레이어), New/Open/Save/Save As 메뉴 연결
+5. **Fit to Content, PNG Export**
+6. **스타일** — 색상, 선 두께 모델 + 속성 패널
+7. **테스트 보강** — HitTest, Grips, Snap, Command 이력, 직렬화
