@@ -16,6 +16,14 @@ namespace AvaloniaCad.Editor.Controls;
 public class DrawingCanvas : Control
 {
     private ITool _tool = new NullTool();
+
+    // 도구별 마우스 커서 (매번 만들지 않도록 재사용)
+    private static readonly Cursor CrossCursor = new(StandardCursorType.Cross);
+    private static readonly Cursor HandCursor = new(StandardCursorType.Hand);
+    private static readonly Cursor MoveCursor = new(StandardCursorType.SizeAll);
+
+    /// <summary>스냅이 적용된 현재 위치 (화면에 마커로 표시). 스냅이 안 걸리면 null.</summary>
+    private Vector2? _snapMarker;
     // 휠 한 칸당 10% 확대/축소
     private const double ZoomStep = 1.1;
 
@@ -104,12 +112,19 @@ public class DrawingCanvas : Control
     {
         var localBounds = new Rect(Bounds.Size);
 
-        var entities = Document?.Entities ?? Array.Empty<Entity>();
+        // 숨김 레이어의 도형은 그리지 않는다
+        var document = Document;
+        var entities = document is null
+            ? Array.Empty<Entity>()
+            : document.Entities.Where(document.IsEntityVisible).ToArray();
+
         var preview = _tool.Preview ?? Array.Empty<Entity>();
-        var grips = _tool is SelectTool select ? select.CurrentGrips : Array.Empty<Grip>();
-        
+        var select = _tool as SelectTool;
+        var grips = select?.CurrentGrips ?? Array.Empty<Grip>();
+
         var scene = new CadScene(
-            Viewport.Clone(), entities.ToArray(), preview, grips, SelectedEntity);
+            Viewport.Clone(), entities, preview, grips, SelectedEntity,
+            select?.HoveredEntity, select?.HoveredGripPosition, _snapMarker);
 
         context.Custom(new SkiaDrawOperation(localBounds, scene));
     }
@@ -130,7 +145,7 @@ public class DrawingCanvas : Control
             _isPanning = true;
             _lastPointer = point.Position;
             e.Pointer.Capture(this);
-            Cursor = new Cursor(StandardCursorType.SizeAll);
+            Cursor = MoveCursor;
             e.Handled = true;
         }
         else if (point.Properties.IsLeftButtonPressed)
@@ -165,9 +180,26 @@ public class DrawingCanvas : Control
             _lastPointer = pos;
         }
 
-        _tool.OnPointerMoved(WorldPositionFor(pos));  
+        _tool.OnPointerMoved(WorldPositionFor(pos));
+
+        // 그립 드래그는 도형을 직접 바꾸므로 문서에 변경을 알려 속성 패널 등을 갱신
+        if (_tool is SelectTool { IsDraggingGrip: true })
+            Document?.NotifyChanged();
+
+        _snapMarker = !_isPanning && ShouldSnap() ? ScreenToSnappedWorld(pos) : null;
 
         UpdateCursorWorld(pos);
+        UpdateToolCursor();
+        InvalidateVisual();
+    }
+
+    // 캔버스 밖으로 나가면 hover/스냅 마커를 지운다
+    protected override void OnPointerExited(PointerEventArgs e)
+    {
+        base.OnPointerExited(e);
+
+        _snapMarker = null;
+        (_tool as SelectTool)?.ClearHover();
         InvalidateVisual();
     }
 
@@ -258,6 +290,7 @@ public class DrawingCanvas : Control
         // 이전 도구의 작업(그리던 도형, 선택)을 정리하고 바꾼다
         _tool.Cancel();
         SelectedEntity = null;
+        _snapMarker = null;
 
         _tool = ToolKind switch
         {
@@ -272,13 +305,28 @@ public class DrawingCanvas : Control
             _ => new NullTool(),   // Pan은 OnPointerPressed에서 직접 처리
         };
 
+        UpdateToolCursor();
         InvalidateVisual();
     }
 
     private void EndPan()
     {
         _isPanning = false;
-        Cursor = null;
+        UpdateToolCursor();
+    }
+
+    // 도구에 맞는 커서: 그리기 = 십자, 화면 이동 = 손, 선택 = 기본(그립 위에서는 이동 표시)
+    private void UpdateToolCursor()
+    {
+        if (_isPanning)
+            return;   // Pan 중에는 MoveCursor 유지
+
+        Cursor = ToolKind switch
+        {
+            ToolKind.Pan => HandCursor,
+            ToolKind.Select => _tool is SelectTool { HoveredGripPosition: not null } ? MoveCursor : null,
+            _ => CrossCursor,
+        };
     }
 
     // 상태 표시줄에는 실제로 찍힐 좌표(스냅 적용 후)를 보여 준다
@@ -314,13 +362,26 @@ public class DrawingCanvas : Control
     
     private Vector2 WorldPositionFor(Point screenPos)
     {
-        // Select 도구의 클릭 판정은 실제 위치로 해야 하므로 스냅을 적용하지 않는다.
-        // 단, 그립을 잡고 끄는 중에는 정확한 좌표에 놓이도록 스냅을 적용한다.
-        var useRawPosition = (ToolKind is ToolKind.Select or ToolKind.Pan)
-                             && _tool is not SelectTool { IsDraggingGrip: true };
+        return ShouldSnap()
+            ? ScreenToSnappedWorld(screenPos)
+            : Viewport.ScreenToWorld(ToVector2(screenPos));
+    }
 
-        return useRawPosition
-            ? Viewport.ScreenToWorld(ToVector2(screenPos))
-            : ScreenToSnappedWorld(screenPos);
+    /// <summary>
+    /// 지금 입력에 스냅을 적용할지 여부.
+    /// Select 도구의 클릭 판정은 실제 위치로 해야 하므로 스냅하지 않지만,
+    /// 그립을 잡고 끄는 중에는 정확한 좌표에 놓이도록 스냅한다.
+    /// </summary>
+    private bool ShouldSnap()
+    {
+        if (!SnapEnabled)
+            return false;
+
+        return ToolKind switch
+        {
+            ToolKind.Pan => false,
+            ToolKind.Select => _tool is SelectTool { IsDraggingGrip: true },
+            _ => true,
+        };
     }
 }
