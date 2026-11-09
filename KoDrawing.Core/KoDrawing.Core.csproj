@@ -6,6 +6,11 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <!-- internal 클래스(EntityHitTest, EntityGrips)를 테스트 프로젝트에서 사용 -->
+    <ItemGroup>
+      <InternalsVisibleTo Include="KoDrawing.Tests" />
+    </ItemGroup>
+
     <ItemGroup>
       <PackageReference Include="Avalonia" Version="12.1.4" />
       <PackageReference Include="SkiaSharp" Version="4.156.0-preview.1.26512.10" />
