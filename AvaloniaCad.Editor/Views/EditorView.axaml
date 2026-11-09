@@ -11,16 +11,14 @@
     xmlns:vm="clr-namespace:AvaloniaCad.Editor.ViewModels"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <UserControl.KeyBindings>
-        <KeyBinding Command="{Binding ToggleSnapCommand}" Gesture="F3" />
-    </UserControl.KeyBindings>
-
     <Grid ColumnDefinitions="220,*,280" RowDefinitions="Auto,*,Auto">
 
         <controls:EditorToolbar
             Grid.Column="0"
             Grid.ColumnSpan="3"
             Grid.Row="0" />
+
+        <controls:LayersPanel Grid.Column="0" Grid.Row="1" />
 
         <controls:DrawingCanvas
             Document="{Binding CadDocument}"
@@ -31,27 +29,44 @@
             SelectedEntity="{Binding SelectedEntity}"
             x:Name="DrawingArea" />
 
-        <!--  상태 표시줄  -->
+        <controls:PropertiesPanel Grid.Column="2" Grid.Row="1" />
+
+        <!--  상태 표시줄: 왼쪽 좌표/줌/도구/스냅/선택, 오른쪽 도구 사용법  -->
         <Border
             Background="#007ACC"
             Grid.Column="0"
             Grid.ColumnSpan="3"
             Grid.Row="2"
             Padding="10,3">
-            <StackPanel Orientation="Horizontal" Spacing="20">
+            <Border.Styles>
+                <Style Selector="TextBlock">
+                    <Setter Property="Foreground" Value="White" />
+                    <Setter Property="VerticalAlignment" Value="Center" />
+                </Style>
+                <Style Selector="Border.divider">
+                    <Setter Property="Width" Value="1" />
+                    <Setter Property="Margin" Value="0,2" />
+                    <Setter Property="Background" Value="#66FFFFFF" />
+                </Style>
+            </Border.Styles>
+
+            <DockPanel>
                 <TextBlock
-                    Foreground="White"
-                    MinWidth="110"
-                    Text="{Binding #DrawingArea.CursorWorld.X, StringFormat='X: {0:F2} mm'}" />
-                <TextBlock
-                    Foreground="White"
-                    MinWidth="110"
-                    Text="{Binding #DrawingArea.CursorWorld.Y, StringFormat='Y: {0:F2} mm'}" />
-                <TextBlock
-                    Foreground="White"
-                    MinWidth="90"
-                    Text="{Binding #DrawingArea.ZoomFactor, StringFormat='Zoom: {0:P0}'}" />
-            </StackPanel>
+                    DockPanel.Dock="Right"
+                    Opacity="0.85"
+                    Text="{Binding ToolHint}" />
+
+                <StackPanel Orientation="Horizontal" Spacing="14">
+                    <TextBlock MinWidth="110" Text="{Binding #DrawingArea.CursorWorld.X, StringFormat='X: {0:F2} mm'}" />
+                    <TextBlock MinWidth="110" Text="{Binding #DrawingArea.CursorWorld.Y, StringFormat='Y: {0:F2} mm'}" />
+                    <TextBlock MinWidth="80" Text="{Binding #DrawingArea.ZoomFactor, StringFormat='Zoom: {0:P0}'}" />
+                    <Border Classes="divider" />
+                    <TextBlock MinWidth="90" Text="{Binding CurrentToolName, StringFormat='도구: {0}'}" />
+                    <TextBlock MinWidth="70" Text="{Binding SnapStatusText}" />
+                    <Border Classes="divider" />
+                    <TextBlock Text="{Binding SelectionText}" />
+                </StackPanel>
+            </DockPanel>
         </Border>
     </Grid>
 

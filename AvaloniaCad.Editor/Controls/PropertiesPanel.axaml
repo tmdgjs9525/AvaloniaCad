@@ -1,0 +1,93 @@
+﻿<UserControl
+    d:DesignWidth="280"
+    x:Class="AvaloniaCad.Editor.Controls.PropertiesPanel"
+    d:DesignHeight="450"
+    mc:Ignorable="d"
+    x:DataType="vm:EditorViewModel"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:AvaloniaCad.Editor.ViewModels"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <UserControl.Styles>
+        <!--  계산값(읽기 전용) 칸은 흐리게  -->
+        <Style Selector="TextBox.readOnly">
+            <Setter Property="Opacity" Value="0.6" />
+        </Style>
+    </UserControl.Styles>
+
+    <Border BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" BorderThickness="1,0,0,0">
+        <DockPanel>
+
+            <TextBlock
+                DockPanel.Dock="Top"
+                FontWeight="SemiBold"
+                Margin="10,8,10,4"
+                Text="속성" />
+
+            <!--  선택 없음  -->
+            <TextBlock
+                DockPanel.Dock="Top"
+                IsVisible="{Binding !HasSelection}"
+                Margin="10,8"
+                Opacity="0.6"
+                Text="선택된 도형이 없습니다."
+                TextWrapping="Wrap" />
+
+            <ScrollViewer IsVisible="{Binding HasSelection}">
+                <StackPanel Margin="10,4,10,10" Spacing="6">
+
+                    <TextBlock
+                        FontSize="15"
+                        FontWeight="SemiBold"
+                        Text="{Binding SelectedEntityTypeName}" />
+
+                    <Grid ColumnDefinitions="70,*">
+                        <TextBlock Text="레이어" VerticalAlignment="Center" />
+                        <ComboBox
+                            Grid.Column="1"
+                            HorizontalAlignment="Stretch"
+                            ItemsSource="{Binding Layers}"
+                            SelectedItem="{Binding SelectedEntityLayer}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate x:DataType="vm:LayerItemViewModel">
+                                    <TextBlock Text="{Binding Name}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </Grid>
+
+                    <!--  도형별 수치: 입력하면 바로 반영, 회색 칸은 계산값(읽기 전용)  -->
+                    <ItemsControl ItemsSource="{Binding Fields}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:PropertyFieldViewModel">
+                                <Grid ColumnDefinitions="70,*,32" Margin="0,2">
+                                    <TextBlock Text="{Binding Label}" VerticalAlignment="Center" />
+                                    <TextBox
+                                        Grid.Column="1"
+                                        Classes.readOnly="{Binding IsReadOnly}"
+                                        IsReadOnly="{Binding IsReadOnly}"
+                                        Text="{Binding Text}" />
+                                    <TextBlock
+                                        Grid.Column="2"
+                                        Margin="6,0,0,0"
+                                        Opacity="0.6"
+                                        Text="{Binding Unit}"
+                                        VerticalAlignment="Center" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <Button
+                        Command="{Binding DeleteSelectedCommand}"
+                        Content="삭제 (Del)"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Center"
+                        Margin="0,8,0,0" />
+                </StackPanel>
+            </ScrollViewer>
+        </DockPanel>
+    </Border>
+</UserControl>
